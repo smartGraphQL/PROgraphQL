@@ -1,0 +1,41 @@
+{
+  "name": "prographql",
+  "version": "1.0.0",
+  "description": "Depth/Cost Complexity is up and running.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smartGraphQL/PROgraphQL.git"
+  },
+  "keywords": [
+    "depth",
+    "cost",
+    "security",
+    "graphql",
+    "server",
+    "resources"
+  ],
+  "author": "Seth, Mark, Julia, Manjeet",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smartGraphQL/PROgraphQL/issues"
+  },
+  "homepage": "https://github.com/smartGraphQL/PROgraphQL#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "express-graphql": "^0.6.12",
+    "graphql": "^0.13.2",
+    "mongoose": "^5.2.7",
+    "nodemon": "^1.18.3"
+  },
+  "devDependencies": {
+    "eslint": "^5.4.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.11.1"
+  }
+}
