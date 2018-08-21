@@ -31,7 +31,11 @@ class RateLimitComplexity{
 				if(this.argsArray.length === 0){
 					// console.log("childNOde", childNode);
 					this.cost += 1;
-					this.argsArray.push(Number(childNode.arguments[0].value.value) || 1);
+					if(childNode.arguments.length !== 0){
+						this.argsArray.push(Number(childNode.arguments[0].value.value));
+					}else{
+						this.argsArray.push(1);
+					}
 					console.log("COST", this.cost);
 					console.log("argsArray ",this.argsArray)
 					this.calculateCost(childNode, iteration+=1);
