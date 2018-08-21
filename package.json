@@ -4,7 +4,8 @@
   "description": "Depth/Cost Complexity is up and running.",
   "main": "./graphqlTestServer/app.js",
   "scripts": {
-    "server":"nodemon ./graphqlTestServer/app.js"
+    "server": "nodemon ./graphqlTestServer/app.js",
+    "flow": "flow"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   },
   "homepage": "https://github.com/smartGraphQL/PROgraphQL#readme",
   "dependencies": {
+    "babel-preset-env": "^1.7.0",
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
     "graphql": "^0.13.2",
@@ -32,12 +34,15 @@
     "nodemon": "^1.18.3"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-flow": "^6.23.0",
     "chai": "^4.1.2",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.1",
+    "flow-bin": "^0.79.1",
     "mocha": "^5.2.0"
   }
 }

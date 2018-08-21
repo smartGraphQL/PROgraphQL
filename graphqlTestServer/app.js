@@ -2,6 +2,7 @@ const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const mongoose = require('mongoose');
 const app = express();
+const schema = require('./schema/schema.js');
 const depthComplexityWrapper = require('../src/depthRule/indexDepth.js');
 const RateLimitWrapper = require('../src/rateLimitRule/indexRate.js');
 //const bodyParser = require('body-parser');

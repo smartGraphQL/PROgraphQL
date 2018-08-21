@@ -1,3 +1,7 @@
+//@flow
+// import type {ValidationContext} from 'graphql';
+// console.log(ValidationContext);
+
 const graphql = require('graphql');
 
 const {
@@ -57,7 +61,7 @@ class RateLimitComplexity{
 	onOperationDefinitionLeave(){
 		console.log(`(this.cost > this.rateLimit ${this.cost > this.rateLimit} this.cost ${this.cost} this.rateLimit ${this.rateLimit}`)
 		if(this.cost > this.rateLimit){
-			throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.rateLimit} greater than the permitted request`)
+			throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.rateLimit}	 greater than the permitted request`)
 		}
 	}
 }
