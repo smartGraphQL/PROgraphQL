@@ -2,8 +2,9 @@
   "name": "prographql",
   "version": "1.0.0",
   "description": "Depth/Cost Complexity is up and running.",
-  "main": "index.js",
+  "main": "./graphqlTestServer/app.js",
   "scripts": {
+    "start": "nodemon ./app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
