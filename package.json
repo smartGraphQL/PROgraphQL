@@ -2,7 +2,7 @@
   "name": "prographql",
   "version": "1.0.0",
   "description": "Depth/Cost Complexity is up and running.",
-  "main": "index.js",
+  "main": "./graphqlTestServer/app.js",
   "scripts": {
     "server":"nodemon ./graphqlTestServer/app.js"
   },
@@ -32,10 +32,12 @@
     "nodemon": "^1.18.3"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-react": "^7.11.1"
+    "eslint-plugin-react": "^7.11.1",
+    "mocha": "^5.2.0"
   }
 }
