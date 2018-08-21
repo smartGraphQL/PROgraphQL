@@ -19,11 +19,11 @@ app.use(
     graphiql: true,
     validationRules: [
       // depthComplexityWrapper(10),
-      RateLimitWrapper(100),
+      RateLimitWrapper(2),
     ],
   })),
 );
 
-app.listen(5000, () => {
+app.listen(5001, () => {
   console.log('listening to 5000');
 });
