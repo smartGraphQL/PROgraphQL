@@ -23,7 +23,10 @@ const {
 class RateLimitComplexity{
 	context:ValidationContext;
 	rateLimit:number;
-	OperationDefinition: Object;
+	OperationDefinition : {
+		enter:Function,
+		leave:Function
+	};
 	argsArray: Array<number>;
 	cost:number;
 
@@ -41,12 +44,11 @@ class RateLimitComplexity{
 	}
 
 
-	onOperationDefinitionEnter(operationNode:OperationDefinitionNode){
+	onOperationDefinitionEnter(operationNode:OperationDefinitionNode):void{
 		this.calculateCost(operationNode:OperationDefinitionNode)
 	}
 
-	calculateCost(node :OperationDefinitionNode|FieldNode, iteration=0):void{
-		// console.log('iteration ', iteration);
+	calculateCost(node :OperationDefinitionNode|FieldNode):void{
 		if(node.selectionSet){
 			node.selectionSet.selections.forEach(childNode => {
 				if(this.argsArray.length === 0){
@@ -56,29 +58,28 @@ class RateLimitComplexity{
 					}else{
 						this.argsArray.push(Number(childNode.arguments[0].value.value) );
 					}
-					this.calculateCost(childNode, iteration+=1);
+					this.calculateCost(childNode);
 				} else {
 					if(childNode.arguments.length > 0){
 						this.cost += this.argsArray.reduce((product, num) => {
 						return product*=num;
 						},1);
 						this.argsArray.push(Number(childNode.arguments[0].value.value));
-						this.calculateCost(childNode,iteration+=1);
+						this.calculateCost(childNode);
 					}else if(childNode.arguments.length == 0 &&childNode.selectionSet){
 						this.cost += this.argsArray.reduce((product, num) => {
 								return product*=num;
 							},1);
 						this.argsArray.push(1);
-						this.calculateCost(childNode,iteration+=1);
+						this.calculateCost(childNode);
 						}
 				}
 
 			})
 		}
-		console.log("COST", this.cost);
 	}
 
-	onOperationDefinitionLeave(){
+	onOperationDefinitionLeave():GraphQLError|void{
 		if(this.cost > this.rateLimit){
 			if(typeof this.rule.onError === 'function'){
 				console.log(this.rule.onError(this.cost, this.rateLimit));

@@ -22,7 +22,14 @@ export type DepthComplexityOptions = {
 class DepthComplexity {
 	context:ValidationContext;
 	depthLimit:number;
-	OperationDefinition: Object;
+	OperationDefinition:  {
+		enter:Function,
+		leave:Function
+	};
+	FragmentDefinition:{
+		enter:Function,
+		leave:Function
+	};
 	maxDepth:number;
 
 	constructor(context: ValidationContext, rule: DepthLimitOptions){
@@ -44,7 +51,6 @@ class DepthComplexity {
 	}
 
 	onFragmentDefinitionEnter(fragment){
-		//console.log('FRAGGMENTT ENTER',fragment);
 		let isFragment = true;
 		this.countDepth(fragment,-1,isFragment);
 
@@ -57,14 +63,15 @@ class DepthComplexity {
 			this.countDepth(operationNode);
 	}
 
-	countDepth(node: FieldNode | OperationDefinitionNode, depth=0 , isFragment, nodeArray=[]){
+	countDepth(node: FieldNode | OperationDefinitionNode,
+			depth:number=0 , isFragment:boolean,
+			nodeArray:Array<FragmentDefinitionNode |OperationDefinitionNode|FieldNode|FragmentSpreadNode|InlineFragmentNode>=[]){
 		if(!node.selectionSet){
 			return ;
 		} else{
 			nodeArray = nodeArray.concat( node.selectionSet.selections);
 			depth +=1;
 			nodeArray.forEach(childNode=>{
-				  //console.log('FOREACH method ', depth)
 				if(isFragment){
 					this.countDepth(childNode,depth,isFragment);
 				}else{
@@ -86,7 +93,7 @@ class DepthComplexity {
 	}
 
 
-	onOperationDefinitionLeave(){
+	onOperationDefinitionLeave():GraphQLError|void{
 		if(this.clientMax < this.maxDepth){
 			if(typeof this.rule.onError === 'function'){
 				console.log('query is tooo nested'.toUpperCase())

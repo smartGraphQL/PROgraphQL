@@ -32,7 +32,6 @@ var DepthComplexity = function () {
 	_createClass(DepthComplexity, [{
 		key: 'onFragmentDefinitionEnter',
 		value: function onFragmentDefinitionEnter(fragment) {
-			//console.log('FRAGGMENTT ENTER',fragment);
 			var isFragment = true;
 			this.countDepth(fragment, -1, isFragment);
 		}
@@ -60,7 +59,6 @@ var DepthComplexity = function () {
 				nodeArray = nodeArray.concat(node.selectionSet.selections);
 				depth += 1;
 				nodeArray.forEach(function (childNode) {
-					//console.log('FOREACH method ', depth)
 					if (isFragment) {
 						_this.countDepth(childNode, depth, isFragment);
 					} else {

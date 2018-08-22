@@ -33,9 +33,6 @@ var RateLimitComplexity = function () {
 		value: function calculateCost(node) {
 			var _this = this;
 
-			var iteration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-			// console.log('iteration ', iteration);
 			if (node.selectionSet) {
 				node.selectionSet.selections.forEach(function (childNode) {
 					if (_this.argsArray.length === 0) {
@@ -45,30 +42,28 @@ var RateLimitComplexity = function () {
 						} else {
 							_this.argsArray.push(Number(childNode.arguments[0].value.value));
 						}
-						_this.calculateCost(childNode, iteration += 1);
+						_this.calculateCost(childNode);
 					} else {
 						if (childNode.arguments.length > 0) {
 							_this.cost += _this.argsArray.reduce(function (product, num) {
 								return product *= num;
 							}, 1);
 							_this.argsArray.push(Number(childNode.arguments[0].value.value));
-							_this.calculateCost(childNode, iteration += 1);
+							_this.calculateCost(childNode);
 						} else if (childNode.arguments.length == 0 && childNode.selectionSet) {
 							_this.cost += _this.argsArray.reduce(function (product, num) {
 								return product *= num;
 							}, 1);
 							_this.argsArray.push(1);
-							_this.calculateCost(childNode, iteration += 1);
+							_this.calculateCost(childNode);
 						}
 					}
 				});
 			}
-			console.log("COST", this.cost);
 		}
 	}, {
 		key: 'onOperationDefinitionLeave',
 		value: function onOperationDefinitionLeave() {
-			console.log('(this.cost > this.rateLimit ' + (this.cost > this.rateLimit) + ' this.cost ' + this.cost + ' this.rateLimit ' + this.rateLimit);
 			if (this.cost > this.rateLimit) {
 				if (typeof this.rule.onError === 'function') {
 					console.log(this.rule.onError(this.cost, this.rateLimit));
