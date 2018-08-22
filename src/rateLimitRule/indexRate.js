@@ -1,9 +1,10 @@
 const RateLimitComplexity = require('./rateLimit');
-const {ValidationContext} = require('graphql');
+import type {ValidationContext} from 'graphql';
+import type {rateComplexityOptions} from './rateLimit';
 
-const RateLimitWrapper = (rateLimit) =>{
-	return (ValidationContext) => {
-		let result = new RateLimitComplexity(ValidationContext, rateLimit);
+const RateLimitWrapper = (rule: rateComplexityOptions):Function =>{
+	return (context:ValidationContext):RateLimitComplexity => {
+		let result = new RateLimitComplexity(context:ValidationContext, rule.maximumCapacity:number);
 		return result;
 	}
 }

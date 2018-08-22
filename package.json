@@ -5,7 +5,9 @@
   "main": "./graphqlTestServer/app.js",
   "scripts": {
     "server": "nodemon ./graphqlTestServer/app.js",
-    "flow": "flow"
+    "flow": "flow",
+		"build": "babel src/ --out-dir dist/  "
+		
   },
   "repository": {
     "type": "git",
@@ -43,6 +45,7 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.1",
     "flow-bin": "^0.79.1",
+    "flow-remove-types": "^1.2.3",
     "mocha": "^5.2.0"
   }
 }

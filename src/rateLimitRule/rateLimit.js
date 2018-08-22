@@ -1,6 +1,16 @@
 //@flow
-// import type {ValidationContext} from 'graphql';
-// console.log(ValidationContext);
+import type {
+	ValidationContext,
+	FragmentDefinitionNode,
+	OperationDefinitionNode,
+	FieldNode,
+	FragmentSpreadNode,
+	InlineFragmentNode
+} from 'graphql';
+
+export type rateComplexityOptions = {
+	maximumComplexity: number,
+}
 
 const graphql = require('graphql');
 
@@ -9,7 +19,13 @@ const {
 } = graphql;
 
 class RateLimitComplexity{
-	constructor(context, rateLimit){
+	context:ValidationContext;
+	rateLimit:number;
+	OperationDefinition: Object;
+	argsArray: Array<number>;
+	cost:number;
+
+	constructor(context:ValidationContext, rateLimit:number){
 		this.context = context;
 		this.rateLimit = rateLimit;
 		this.argsArray = [];
@@ -21,12 +37,12 @@ class RateLimitComplexity{
 		}
 	}
 
-	onOperationDefinitionEnter(operationNode){
-		//console.log("NODE", operationNode)
-		this.calculateCost(operationNode)
+
+	onOperationDefinitionEnter(operationNode:OperationDefinitionNode){
+		this.calculateCost(operationNode:OperationDefinitionNode)
 	}
 
-	calculateCost(node, iteration=0){
+	calculateCost(node :OperationDefinitionNode|FieldNode, iteration=0):void{
 		// console.log('iteration ', iteration);
 		if(node.selectionSet){
 			node.selectionSet.selections.forEach(childNode => {
@@ -53,9 +69,10 @@ class RateLimitComplexity{
 						this.calculateCost(childNode,iteration+=1);
 						}
 				}
-				console.log("COST", this.cost);
+
 			})
 		}
+		console.log("COST", this.cost);
 	}
 
 	onOperationDefinitionLeave(){
