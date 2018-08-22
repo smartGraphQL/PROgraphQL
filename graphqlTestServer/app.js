@@ -14,12 +14,12 @@ mongoose.connection.once('open', ()=>{
 })
 
 const ruleCost = {
-	maximumCapacity: 80,
+	maximumCapacity: 90,
 	onSuccess: (cost) => (`Complete, query cost is ${cost}`),
 	onError: (cost, maximumCapacity) => (`Error: Cost is ${cost} but rate limit is ${maximumCapacity}`)
 }
 const ruleDepth = {
-	maximumDepth: 8,
+	depthLimit: 10,
 	onSuccess: (depth) => (`Complete, query depth is ${depth}`),
 	onError: (depth, maximumDepth) => (`Error: Current depth is ${depth} but max depth is ${maximumDepth}`)
 }

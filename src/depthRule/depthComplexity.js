@@ -14,24 +14,35 @@ const {
 } = graphql;
 
 export type DepthComplexityOptions = {
-	maxDepth: number,
+	depthLimit: number, //maxDepth
 	onSuccess ?: (depth:number)=>void,
-	onError ?:(depth:number,maxDepth:number)=>GraphQLError
+	onError ?:(depth:number,depthLimit:number)=>GraphQLError
 }
 
 class DepthComplexity {
 	context:ValidationContext;
 	depthLimit:number;
+<<<<<<< Updated upstream
 	OperationDefinition: Object;
+=======
+	OperationDefinition:  {
+		enter:Function,
+		leave:Function
+	};
+	FragmentDefinition:{
+		enter:Function,
+		leave:Function
+	};
+	config:DepthLimitOptions;
+>>>>>>> Stashed changes
 	maxDepth:number;
 
-	constructor(context: ValidationContext, rule: DepthLimitOptions){
+	constructor(context: ValidationContext, config: DepthLimitOptions){
 		this.context = context;
-		this.maxOperationDefinitionDepth = 0;
-		this.maxfragmentDefinitionDepth = 0;
-		this.maxDepth = 0;
-		this.rule = rule;
-		this.clientMax = rule.maximumDepth;
+		this.operationDefinitionDepth = 0;
+		this.fragmentDefinitionDepth = 0;
+		this.actualDepth = 0;
+		this.config = config;
 		this.OperationDefinition = {
 			enter:this.onOperationDefinitionEnter,
 			leave:this.onOperationDefinitionLeave
@@ -46,18 +57,20 @@ class DepthComplexity {
 	onFragmentDefinitionEnter(fragment){
 		//console.log('FRAGGMENTT ENTER',fragment);
 		let isFragment = true;
-		this.countDepth(fragment,-1,isFragment);
-
-	}
-
-	onFragmentDefinitionLeave(){
+		this.calculateDepth(fragment,-1,isFragment);
 	}
 
 	onOperationDefinitionEnter(operationNode){
-			this.countDepth(operationNode);
+			this.calculateDepth(operationNode);
 	}
 
+<<<<<<< Updated upstream
 	countDepth(node: FieldNode | OperationDefinitionNode, depth=0 , isFragment, nodeArray=[]){
+=======
+	calculateDepth(node: FieldNode | OperationDefinitionNode,
+			depth:number=0 , isFragment:boolean,
+			nodeArray:Array<FragmentDefinitionNode |OperationDefinitionNode|FieldNode|FragmentSpreadNode|InlineFragmentNode>=[]){
+>>>>>>> Stashed changes
 		if(!node.selectionSet){
 			return ;
 		} else{
@@ -66,26 +79,26 @@ class DepthComplexity {
 			nodeArray.forEach(childNode=>{
 				  //console.log('FOREACH method ', depth)
 				if(isFragment){
-					this.countDepth(childNode,depth,isFragment);
+					this.calculateDepth(childNode,depth,isFragment);
 				}else{
-					this.countDepth(childNode,depth);
+					this.calculateDepth(childNode,depth);
 				}
 			})
 		}
 
 		if(isFragment){
-			// console.log('ISFRAGMENT ',this.maxfragmentDefinitionDepth , 'depthh ', depth);
-			this.maxfragmentDefinitionDepth = Math.max(this.maxfragmentDefinitionDepth,depth);
-			this.maxDepth = this.maxOperationDefinitionDepth + this.maxfragmentDefinitionDepth;
-			//console.log('ISFRAGMENT ',this.maxfragmentDefinitionDepth);
+			this.fragmentDefinitionDepth = Math.max(this.fragmentDefinitionDepth,depth);
+			this.actualDepth = this.operationDefinitionDepth + this.fragmentDefinitionDepth;
 		}else{
-			this.maxOperationDefinitionDepth = Math.max(this.maxOperationDefinitionDepth,depth);
-			this.maxDepth = this.maxOperationDefinitionDepth;
+			this.operationDefinitionDepth = Math.max(this.operationDefinitionDepth,depth);
+			this.actualDepth = this.operationDefinitionDepth;
 		}
-		//console.log('MAXX DEPTHH ', this.maxDepth  );
 	}
 
+	validateQuery():void{
+		let {depthLimit, onSuccess, onError}= this.config;
 
+<<<<<<< Updated upstream
 	onOperationDefinitionLeave(){
 		if(this.clientMax < this.maxDepth){
 			if(typeof this.rule.onError === 'function'){
@@ -95,13 +108,26 @@ class DepthComplexity {
 				console.log('query is tooo nested'.toUpperCase())
 				throw new GraphQLError(
 					`Query is to complex, MAX DEPTH is ${this.clientMax}, Current DEPTH is ${this.maxDepth}`
+=======
+		if(depthLimit < this.actualDepth){
+			if(typeof onError === 'function') throw new GraphQLError(onError(this.actualDepth, this.clientMax));
+			else throw new GraphQLError(
+					`Query is to complex, MAX DEPTH is ${this.clientMax}, Current DEPTH is ${this.actualDepth}`
+>>>>>>> Stashed changes
 				);
-			}
 		} else {
-			 if(typeof this.rule.onSuccess === 'function'){
-				 console.log(this.rule.onSuccess(this.maxDepth));
+			 if(typeof onSuccess === 'function'){
+				 console.log(onSuccess(this.actualDepth));
 			 }
 		}
+	}
+
+	onOperationDefinitionLeave():GraphQLError|void{
+		this.validateQuery();
+	}
+
+	onFragmentDefinitionLeave(){
+		this.validateQuery();
 	}
 }
 
