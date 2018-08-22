@@ -2,7 +2,7 @@ const RateLimitComplexity = require('./rateLimit');
 const {ValidationContext, GraphQLError} = require('graphql');
 
 const RateLimitWrapper = (rateLimit) =>{
-	if(rateLimit === 0 || rateLimit < 0) {
+	if(rateLimit <= 0) {
 		throw new GraphQLError('Rate limit must be greater than 0');
 	}
 	return (ValidationContext) => {

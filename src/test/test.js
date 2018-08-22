@@ -9,28 +9,58 @@ const {
 const RateLimitComplexity = require('.././rateLimitRule/rateLimit');
 const schema = require('./assets/schema');
 
-// test('adds 1 + 2 to equal 3', () => {
-//   expect(rateLimit.sum(1, 2)).toBe(3);
-// });
-
-// describe('Addition', () => {
-//     test('knows that 2 and 2 make 4', () => {
-//       expect(rateLimit.sum(2, 2)).toBe(4);
-//     });
-//   });
-describe('QueryComplexity analysis', () => {
+describe('Query Complexity Analysis', () => {
     const typeInfo = new TypeInfo(schema);
-  test('should consider default scalar cost', () => {
+
+  test('starting complexity should be 0', () => {
+        const context = new ValidationContext(schema);
+        const complexity = new RateLimitComplexity(context, 2);
+        expect(complexity.cost).toBe(0);
+  })
+
+  test('should calculate cost of query without arguments', () => {
     const ast = parse(`
       query {
-        name 
+        artists {
+          name {
+            songs {
+              name
+            }
+            albums {
+              songs {
+                year
+              }
+            }
+          }
+        }
       }
     `);
 
     const context = new ValidationContext(schema, ast, typeInfo);
-    const complexity = new RateLimitComplexity(context, 2);
-      console.log(ast.definitions[0].selectionSet)
+    const complexity = new RateLimitComplexity(context, 16);
     visit(ast, visitWithTypeInfo(typeInfo, complexity));
-    expect(complexity.cost).toBe(1);
+    expect(complexity.cost).toBe(5);
+  });
+
+  test('should calculate cost of query if arguments are provided', () => {
+    const ast = parse(`
+      query {
+        name(first: 5) {
+          address {
+            street(first:5) {
+              building {
+                apt
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const complexity = new RateLimitComplexity(context, 45);
+    visit(ast, visitWithTypeInfo(typeInfo, complexity));
+    expect(complexity.cost).toBe(16);
   });
 });
+

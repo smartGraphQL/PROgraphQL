@@ -15,6 +15,10 @@ class RateLimitComplexity{
 			enter:this.onOperationDefinitionEnter,
 			leave:this.onOperationDefinitionLeave
 		}
+		this.FragmentDefinition = {
+			enter:this.onFragmentDefinitionEnter,
+			leave:this.onFragmentDefinitionLeave
+		}
 	}
 
 	onOperationDefinitionEnter(operationNode){
@@ -22,28 +26,39 @@ class RateLimitComplexity{
 		this.calculateCost(operationNode)
 	}
 
-	calculateCost(node){
+	onFragmentDefinitionEnter(fragment){
+		//console.log('FRAGGMENTT ENTER',fragment);
+		let isFragment = true;
+		this.calculateCost(fragment);
+
+	}
+
+	onFragmentDefinitionLeave(){
+		//console.log('FRAGGMENTT EXIT');
+	}
+
+	calculateCost(node, isFragment){
+		// console.log('******* CURRENT NODE', node)
 		if(node.selectionSet){
 			node.selectionSet.selections.forEach(childNode => {
-				
+				console.log(this.argsArray.length)
 				if(this.argsArray.length === 0){
 					this.cost += 1;
 					if(childNode.arguments.length == 0){
 						this.argsArray.push(1);
-					}else{
+					}
+					 else {
 						this.argsArray.push(Number(childNode.arguments[0].value.value) );
 					}
 					this.calculateCost(childNode);
 				} else {
-					// console.log('IS LENGTH FAILING HERE?' , childNode.arguments.length)
-
-					if(childNode.arguments.length > 0){
+					if(childNode.arguments && childNode.arguments.length > 0){
 						this.cost += this.argsArray.reduce((product, num) => {
 						return product*=num;
 						},1);
 						this.argsArray.push(Number(childNode.arguments[0].value.value));
-						this.calculateCost(childNode,iteration+=1);
-					}else if(childNode.arguments.length == 0 &&childNode.selectionSet){
+						this.calculateCost(childNode);
+					}else if(childNode.arguments && childNode.arguments.length == 0 &&childNode.selectionSet){
 						this.cost += this.argsArray.reduce((product, num) => {
 								return product*=num;
 							},1);
