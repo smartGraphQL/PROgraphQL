@@ -7,9 +7,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var graphql = require('graphql');
 var GraphQLError = graphql.GraphQLError;
 
-var RateLimitComplexity = function () {
-	function RateLimitComplexity(context, config) {
-		_classCallCheck(this, RateLimitComplexity);
+var CostLimitComplexity = function () {
+	function CostLimitComplexity(context, config) {
+		_classCallCheck(this, CostLimitComplexity);
 
 		this.context = context;
 
@@ -23,7 +23,7 @@ var RateLimitComplexity = function () {
 		};
 	}
 
-	_createClass(RateLimitComplexity, [{
+	_createClass(CostLimitComplexity, [{
 		key: 'onOperationDefinitionEnter',
 		value: function onOperationDefinitionEnter(operationNode) {
 			this.calculateCost(operationNode);
@@ -95,7 +95,7 @@ var RateLimitComplexity = function () {
 		}
 	}]);
 
-	return RateLimitComplexity;
+	return CostLimitComplexity;
 }();
 
-module.exports = RateLimitComplexity;
+module.exports = CostLimitComplexity;

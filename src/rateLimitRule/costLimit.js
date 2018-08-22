@@ -8,8 +8,8 @@ import type {
 	InlineFragmentNode
 } from 'graphql';
 
-export type rateComplexityOptions = {
-	maximumComplexity: number,
+export type costComplexityOptions = {
+	costLimit: number,
 	onSuccess ?: (depth:number)=>void,
 	onError ?:(actual:number,maxDepth:number)=>GraphQLError
 }
@@ -20,19 +20,19 @@ const {
 } = graphql;
 
 
-class RateLimitComplexity{
+class CostLimitComplexity{
 	context:ValidationContext;
 	rateLimit:number;
 	OperationDefinition: Object;
 	argsArray: Array<number>;
 	cost:number;
 
-	constructor(context:ValidationContext, rule:RateLimitOptions){
+	constructor(context:ValidationContext, config:RateLimitOptions){
 		this.context = context;
-		this.rateLimit = rule.maximumCapacity;
+
 		this.argsArray = [];
 		this.cost = 0;
-		this.rule = rule;
+		this.config = config;
 
 		this.OperationDefinition = {
 			enter:this.onOperationDefinitionEnter,
@@ -75,24 +75,30 @@ class RateLimitComplexity{
 
 			})
 		}
-		console.log("COST", this.cost);
+		// console.log("COST", this.cost);
 	}
 
-	onOperationDefinitionLeave(){
-		if(this.cost > this.rateLimit){
-			if(typeof this.rule.onError === 'function'){
-				console.log(this.rule.onError(this.cost, this.rateLimit));
-				throw new GraphQLError(this.rule.onError(this.cost, this.rateLimit));
+	validateQuery():void|GraphQLError{
+		let {costLimit, onSuccess, onError} = this.config;
+
+		if(costLimit < this.cost){
+			if(typeof onError === 'function'){
+				// console.log('sjdksd' + onError(this.cost, costLimit));
+				throw new GraphQLError(onError(this.cost, costLimit));
 			} else {
-				console.log(this.rule.onError(this.cost, this.rateLimit));
-				throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.rateLimit} greater than the permitted request`)
+				console.log(onError(this.cost, costLimit));
+				throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.costLimit} greater than the permitted request`)
 			}
 		} else {
-			if(typeof this.rule.onSuccess === 'function'){
-				console.log(this.rule.onSuccess(this.cost));
+			if(typeof onSuccess === 'function'){
+				console.log(onSuccess(this.cost));
 			}
 		}
 	}
+
+	onOperationDefinitionLeave(){
+		this.validateQuery();
+	}
 }
 
-module.exports = RateLimitComplexity;
+module.exports = CostLimitComplexity;

@@ -3,8 +3,8 @@ const graphqlHTTP = require('express-graphql');
 const mongoose = require('mongoose');
 const app = express();
 const schema =  require('./schema/schema.js');
-const depthComplexityWrapper = require('../dist/depthRule/indexDepth.js');
-const RateLimitWrapper = require('../dist/rateLimitRule/indexRate.js');
+const depthComplexity = require('../dist/depthRule/indexDepth.js');
+const costLimit = require('../dist/rateLimitRule/indexCost.js');
 
 //const bodyParser = require('body-parser');
 
@@ -14,9 +14,9 @@ mongoose.connection.once('open', ()=>{
 })
 
 const ruleCost = {
-	maximumCapacity: 90,
+	costLimit: 2,
 	onSuccess: (cost) => (`Complete, query cost is ${cost}`),
-	onError: (cost, maximumCapacity) => (`Error: Cost is ${cost} but rate limit is ${maximumCapacity}`)
+	onError: (cost, costLimit) => (`Error: Cost is ${cost} but cost limit is ${costLimit}`)
 }
 const ruleDepth = {
 	depthLimit: 10,
@@ -27,8 +27,8 @@ app.use('/graphql', graphqlHTTP((req,res,gqlParams)=>({
 		schema,
 		graphiql: true,
 		validationRules:[
-			depthComplexityWrapper(ruleDepth),
-		  RateLimitWrapper(ruleCost)
+			depthComplexity(ruleDepth),
+		  costLimit(ruleCost)
 		]
 	})))
 
