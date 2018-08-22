@@ -68,7 +68,6 @@ var RateLimitComplexity = function () {
 	}, {
 		key: 'onOperationDefinitionLeave',
 		value: function onOperationDefinitionLeave() {
-			console.log('(this.cost > this.rateLimit ' + (this.cost > this.rateLimit) + ' this.cost ' + this.cost + ' this.rateLimit ' + this.rateLimit);
 			if (this.cost > this.rateLimit) {
 				if (typeof this.rule.onError === 'function') {
 					console.log(this.rule.onError(this.cost, this.rateLimit));

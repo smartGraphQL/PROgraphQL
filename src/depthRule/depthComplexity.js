@@ -14,7 +14,7 @@ const {
 } = graphql;
 
 export type DepthComplexityOptions = {
-	depthLimit: number, //maxDepth
+	depthLimit: number,
 	onSuccess ?: (depth:number)=>void,
 	onError ?:(depth:number,depthLimit:number)=>GraphQLError
 }
@@ -22,9 +22,7 @@ export type DepthComplexityOptions = {
 class DepthComplexity {
 	context:ValidationContext;
 	depthLimit:number;
-<<<<<<< Updated upstream
 	OperationDefinition: Object;
-=======
 	OperationDefinition:  {
 		enter:Function,
 		leave:Function
@@ -34,7 +32,6 @@ class DepthComplexity {
 		leave:Function
 	};
 	config:DepthLimitOptions;
->>>>>>> Stashed changes
 	maxDepth:number;
 
 	constructor(context: ValidationContext, config: DepthLimitOptions){
@@ -64,13 +61,9 @@ class DepthComplexity {
 			this.calculateDepth(operationNode);
 	}
 
-<<<<<<< Updated upstream
-	countDepth(node: FieldNode | OperationDefinitionNode, depth=0 , isFragment, nodeArray=[]){
-=======
 	calculateDepth(node: FieldNode | OperationDefinitionNode,
 			depth:number=0 , isFragment:boolean,
 			nodeArray:Array<FragmentDefinitionNode |OperationDefinitionNode|FieldNode|FragmentSpreadNode|InlineFragmentNode>=[]){
->>>>>>> Stashed changes
 		if(!node.selectionSet){
 			return ;
 		} else{
@@ -97,31 +90,17 @@ class DepthComplexity {
 
 	validateQuery():void{
 		let {depthLimit, onSuccess, onError}= this.config;
-
-<<<<<<< Updated upstream
-	onOperationDefinitionLeave(){
-		if(this.clientMax < this.maxDepth){
-			if(typeof this.rule.onError === 'function'){
-				console.log('query is tooo nested'.toUpperCase())
-				throw new GraphQLError(this.rule.onError(this.maxDepth, this.clientMax));
-			} else {
-				console.log('query is tooo nested'.toUpperCase())
-				throw new GraphQLError(
-					`Query is to complex, MAX DEPTH is ${this.clientMax}, Current DEPTH is ${this.maxDepth}`
-=======
 		if(depthLimit < this.actualDepth){
 			if(typeof onError === 'function') throw new GraphQLError(onError(this.actualDepth, this.clientMax));
 			else throw new GraphQLError(
 					`Query is to complex, MAX DEPTH is ${this.clientMax}, Current DEPTH is ${this.actualDepth}`
->>>>>>> Stashed changes
 				);
 		} else {
 			 if(typeof onSuccess === 'function'){
 				 console.log(onSuccess(this.actualDepth));
 			 }
 		}
-	}
-
+}
 	onOperationDefinitionLeave():GraphQLError|void{
 		this.validateQuery();
 	}
