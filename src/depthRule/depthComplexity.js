@@ -1,17 +1,45 @@
 const graphql = require('graphql');
 
+import type {
+	ValidationContext,
+	FragmentDefinitionNode,
+	OperationDefinitionNode,
+	FieldNode,
+	FragmentSpreadNode,
+	InlineFragmentNode
+} from 'graphql';
+
 const {
 	GraphQLError,
 } = graphql;
 
-class DepthComplexity{
+export type DepthComplexityOptions = {
+	depthLimit: number,
+	onSuccess ?: (depth:number)=>void,
+	onError ?:(depth:number,depthLimit:number)=>GraphQLError
+}
 
-	constructor(validationContext, depth){
-		this.context = validationContext;
-		this.maxOperationDefinitionDepth = 0;
-		this.maxfragmentDefinitionDepth = 0;
-		this.maxDepth = 0;
-		this.clientMax = depth;
+class DepthComplexity {
+	context:ValidationContext;
+	depthLimit:number;
+	OperationDefinition: Object;
+	OperationDefinition:  {
+		enter:Function,
+		leave:Function
+	};
+	FragmentDefinition:{
+		enter:Function,
+		leave:Function
+	};
+	config:DepthLimitOptions;
+	maxDepth:number;
+
+	constructor(context: ValidationContext, config: DepthLimitOptions){
+		this.context = context;
+		this.operationDefinitionDepth = 0;
+		this.fragmentDefinitionDepth = 0;
+		this.actualDepth = 0;
+		this.config = config;
 		this.OperationDefinition = {
 			enter:this.onOperationDefinitionEnter,
 			leave:this.onOperationDefinitionLeave
@@ -26,21 +54,22 @@ class DepthComplexity{
 	onFragmentDefinitionEnter(fragment){
 		//console.log('FRAGGMENTT ENTER',fragment);
 		let isFragment = true;
-		this.countDepth(fragment,-1,isFragment);
-
+		this.calculateDepth(fragment,-1,isFragment);
 	}
 
-	onFragmentDefinitionLeave(){
-		//console.log('FRAGGMENTT EXIT');
-	}
 	onOperationDefinitionEnter(operationNode){
+<<<<<<< HEAD
 			//console.log('Entered the OperationDefinition', operationNode);
 			// console.log("HELLO",this.context.getSchema());
 			this.countDepth(operationNode);
+=======
+			this.calculateDepth(operationNode);
+>>>>>>> eb6057d08953b14976e9d299646753358c287d95
 	}
 
-	countDepth(node,depth=0, isFragment,nodeArray=[]){
-		//console.log('COUNTTT DEPTH ',node.name.value.toUpperCase() , 'depth ', depth);
+	calculateDepth(node: FieldNode | OperationDefinitionNode,
+			depth:number=0 , isFragment:boolean,
+			nodeArray:Array<FragmentDefinitionNode |OperationDefinitionNode|FieldNode|FragmentSpreadNode|InlineFragmentNode>=[]){
 		if(!node.selectionSet){
 			return ;
 		} else{
@@ -49,22 +78,21 @@ class DepthComplexity{
 			nodeArray.forEach(childNode=>{
 				  //console.log('FOREACH method ', depth)
 				if(isFragment){
-					this.countDepth(childNode,depth,isFragment);
+					this.calculateDepth(childNode,depth,isFragment);
 				}else{
-					this.countDepth(childNode,depth);
+					this.calculateDepth(childNode,depth);
 				}
 			})
 		}
 
 		if(isFragment){
-			// console.log('ISFRAGMENT ',this.maxfragmentDefinitionDepth , 'depthh ', depth);
-			this.maxfragmentDefinitionDepth = Math.max(this.maxfragmentDefinitionDepth,depth);
-			this.maxDepth = this.maxOperationDefinitionDepth + this.maxfragmentDefinitionDepth;
-			//console.log('ISFRAGMENT ',this.maxfragmentDefinitionDepth);
+			this.fragmentDefinitionDepth = Math.max(this.fragmentDefinitionDepth,depth);
+			this.actualDepth = this.operationDefinitionDepth + this.fragmentDefinitionDepth;
 		}else{
-			this.maxOperationDefinitionDepth = Math.max(this.maxOperationDefinitionDepth,depth);
-			this.maxDepth = this.maxOperationDefinitionDepth;
+			this.operationDefinitionDepth = Math.max(this.operationDefinitionDepth,depth);
+			this.actualDepth = this.operationDefinitionDepth;
 		}
+<<<<<<< HEAD
 		console.log('MAXX DEPTHH ', this.maxDepth  );
 	}
 
@@ -77,6 +105,29 @@ class DepthComplexity{
 			);
 		}
 		// console.log('Exited the Rule')
+=======
+	}
+
+	validateQuery():void{
+		let {depthLimit, onSuccess, onError}= this.config;
+		if(depthLimit < this.actualDepth){
+			if(typeof onError === 'function') throw new GraphQLError(onError(this.actualDepth, this.clientMax));
+			else throw new GraphQLError(
+					`Query is to complex, MAX DEPTH is ${this.clientMax}, Current DEPTH is ${this.actualDepth}`
+				);
+		} else {
+			 if(typeof onSuccess === 'function'){
+				 console.log(onSuccess(this.actualDepth));
+			 }
+		}
+}
+	onOperationDefinitionLeave():GraphQLError|void{
+		this.validateQuery();
+	}
+
+	onFragmentDefinitionLeave(){
+		this.validateQuery();
+>>>>>>> eb6057d08953b14976e9d299646753358c287d95
 	}
 }
 
