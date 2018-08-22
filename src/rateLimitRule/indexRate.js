@@ -4,7 +4,7 @@ import type {rateComplexityOptions} from './rateLimit';
 
 const RateLimitWrapper = (rule: rateComplexityOptions):Function =>{
 	return (context:ValidationContext):RateLimitComplexity => {
-		let result = new RateLimitComplexity(context:ValidationContext, rule.maximumCapacity:number);
+		let result = new RateLimitComplexity(context:ValidationContext, rule:rateComplexityOptions);
 		return result;
 	}
 }

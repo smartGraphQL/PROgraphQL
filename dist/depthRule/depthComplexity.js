@@ -9,14 +9,15 @@ var graphql = require('graphql');
 var GraphQLError = graphql.GraphQLError;
 
 var DepthComplexity = function () {
-	function DepthComplexity(validationContext, depth) {
+	function DepthComplexity(context, rule) {
 		_classCallCheck(this, DepthComplexity);
 
-		this.context = validationContext;
+		this.context = context;
 		this.maxOperationDefinitionDepth = 0;
 		this.maxfragmentDefinitionDepth = 0;
 		this.maxDepth = 0;
-		this.clientMax = depth;
+		this.rule = rule;
+		this.clientMax = rule.maximumDepth;
 		this.OperationDefinition = {
 			enter: this.onOperationDefinitionEnter,
 			leave: this.onOperationDefinitionLeave
@@ -37,14 +38,10 @@ var DepthComplexity = function () {
 		}
 	}, {
 		key: 'onFragmentDefinitionLeave',
-		value: function onFragmentDefinitionLeave() {
-			//console.log('FRAGGMENTT EXIT');
-		}
+		value: function onFragmentDefinitionLeave() {}
 	}, {
 		key: 'onOperationDefinitionEnter',
 		value: function onOperationDefinitionEnter(operationNode) {
-			//console.log('Entered the OperationDefinition', operationNode);
-			console.log("HELLO", this.context.getSchema());
 			this.countDepth(operationNode);
 		}
 	}, {
@@ -57,7 +54,6 @@ var DepthComplexity = function () {
 			var isFragment = arguments[2];
 			var nodeArray = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
 
-			//console.log('COUNTTT DEPTH ',node.name.value.toUpperCase() , 'depth ', depth);
 			if (!node.selectionSet) {
 				return;
 			} else {
@@ -88,10 +84,18 @@ var DepthComplexity = function () {
 		key: 'onOperationDefinitionLeave',
 		value: function onOperationDefinitionLeave() {
 			if (this.clientMax < this.maxDepth) {
-				console.log('query is tooo nested'.toUpperCase());
-				throw new GraphQLError('Query is to complex, MAX DEPTH is ' + this.clientMax + ', Current DEPTH is ' + this.maxDepth);
+				if (typeof this.rule.onError === 'function') {
+					console.log('query is tooo nested'.toUpperCase());
+					throw new GraphQLError(this.rule.onError(this.maxDepth, this.clientMax));
+				} else {
+					console.log('query is tooo nested'.toUpperCase());
+					throw new GraphQLError('Query is to complex, MAX DEPTH is ' + this.clientMax + ', Current DEPTH is ' + this.maxDepth);
+				}
+			} else {
+				if (typeof this.rule.onSuccess === 'function') {
+					console.log(this.rule.onSuccess(this.maxDepth));
+				}
 			}
-			console.log('Exited the Rule');
 		}
 	}]);
 

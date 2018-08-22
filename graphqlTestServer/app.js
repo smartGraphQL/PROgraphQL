@@ -13,17 +13,22 @@ mongoose.connection.once('open', ()=>{
 	console.log('connected with database')
 })
 
-const rule = {
-	maximumCapacity: 20,
-	// onSuccess: (cost) => void,
-	// onComplete:(cost, maximumCapacity)=>void
+const ruleCost = {
+	maximumCapacity: 80,
+	onSuccess: (cost) => (`Complete, query cost is ${cost}`),
+	onError: (cost, maximumCapacity) => (`Error: Cost is ${cost} but rate limit is ${maximumCapacity}`)
+}
+const ruleDepth = {
+	maximumDepth: 8,
+	onSuccess: (depth) => (`Complete, query depth is ${depth}`),
+	onError: (depth, maximumDepth) => (`Error: Current depth is ${depth} but max depth is ${maximumDepth}`)
 }
 app.use('/graphql', graphqlHTTP((req,res,gqlParams)=>({
 		schema,
 		graphiql: true,
 		validationRules:[
-			//depthComplexityWrapper(10),
-			RateLimitWrapper(rule)
+			depthComplexityWrapper(ruleDepth),
+		  RateLimitWrapper(ruleCost)
 		]
 	})))
 

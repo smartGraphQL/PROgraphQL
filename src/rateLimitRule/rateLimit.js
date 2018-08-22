@@ -10,13 +10,15 @@ import type {
 
 export type rateComplexityOptions = {
 	maximumComplexity: number,
+	onSuccess ?: (depth:number)=>void,
+	onError ?:(actual:number,maxDepth:number)=>GraphQLError
 }
 
 const graphql = require('graphql');
-
 const {
 	GraphQLError,
 } = graphql;
+
 
 class RateLimitComplexity{
 	context:ValidationContext;
@@ -25,11 +27,12 @@ class RateLimitComplexity{
 	argsArray: Array<number>;
 	cost:number;
 
-	constructor(context:ValidationContext, rateLimit:number){
+	constructor(context:ValidationContext, rule:RateLimitOptions){
 		this.context = context;
-		this.rateLimit = rateLimit;
+		this.rateLimit = rule.maximumCapacity;
 		this.argsArray = [];
 		this.cost = 0;
+		this.rule = rule;
 
 		this.OperationDefinition = {
 			enter:this.onOperationDefinitionEnter,
@@ -76,9 +79,18 @@ class RateLimitComplexity{
 	}
 
 	onOperationDefinitionLeave(){
-		console.log(`(this.cost > this.rateLimit ${this.cost > this.rateLimit} this.cost ${this.cost} this.rateLimit ${this.rateLimit}`)
 		if(this.cost > this.rateLimit){
-			throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.rateLimit}	 greater than the permitted request`)
+			if(typeof this.rule.onError === 'function'){
+				console.log(this.rule.onError(this.cost, this.rateLimit));
+				throw new GraphQLError(this.rule.onError(this.cost, this.rateLimit));
+			} else {
+				console.log(this.rule.onError(this.cost, this.rateLimit));
+				throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.rateLimit} greater than the permitted request`)
+			}
+		} else {
+			if(typeof this.rule.onSuccess === 'function'){
+				console.log(this.rule.onSuccess(this.cost));
+			}
 		}
 	}
 }

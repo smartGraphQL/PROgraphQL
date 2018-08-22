@@ -5,10 +5,9 @@ var DepthComplexity = require('./depthComplexity');
 var _require = require('graphql'),
     ValidationContext = _require.ValidationContext;
 
-var depthComplexityWrapper = function depthComplexityWrapper(depth) {
-	return function (ValidationContext) {
-		var result = new DepthComplexity(ValidationContext, depth);
-		console.log(result);
+var depthComplexityWrapper = function depthComplexityWrapper(rule) {
+	return function (context) {
+		var result = new DepthComplexity(context, rule);
 		return result;
 	};
 };

@@ -5,17 +5,17 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var graphql = require('graphql');
-
 var GraphQLError = graphql.GraphQLError;
 
 var RateLimitComplexity = function () {
-	function RateLimitComplexity(context, rateLimit) {
+	function RateLimitComplexity(context, rule) {
 		_classCallCheck(this, RateLimitComplexity);
 
 		this.context = context;
-		this.rateLimit = rateLimit;
+		this.rateLimit = rule.maximumCapacity;
 		this.argsArray = [];
 		this.cost = 0;
+		this.rule = rule;
 
 		this.OperationDefinition = {
 			enter: this.onOperationDefinitionEnter,
@@ -70,7 +70,17 @@ var RateLimitComplexity = function () {
 		value: function onOperationDefinitionLeave() {
 			console.log('(this.cost > this.rateLimit ' + (this.cost > this.rateLimit) + ' this.cost ' + this.cost + ' this.rateLimit ' + this.rateLimit);
 			if (this.cost > this.rateLimit) {
-				throw new GraphQLError('You are asking for ' + this.cost + ' records. This is ' + (this.cost - this.rateLimit) + '\t greater than the permitted request');
+				if (typeof this.rule.onError === 'function') {
+					console.log(this.rule.onError(this.cost, this.rateLimit));
+					throw new GraphQLError(this.rule.onError(this.cost, this.rateLimit));
+				} else {
+					console.log(this.rule.onError(this.cost, this.rateLimit));
+					throw new GraphQLError('You are asking for ' + this.cost + ' records. This is ' + (this.cost - this.rateLimit) + ' greater than the permitted request');
+				}
+			} else {
+				if (typeof this.rule.onSuccess === 'function') {
+					console.log(this.rule.onSuccess(this.cost));
+				}
 			}
 		}
 	}]);
