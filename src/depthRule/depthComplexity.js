@@ -35,7 +35,7 @@ class DepthComplexity{
 	}
 	onOperationDefinitionEnter(operationNode){
 			//console.log('Entered the OperationDefinition', operationNode);
-			console.log("HELLO",this.context.getSchema());
+			// console.log("HELLO",this.context.getSchema());
 			this.countDepth(operationNode);
 	}
 
@@ -65,18 +65,18 @@ class DepthComplexity{
 			this.maxOperationDefinitionDepth = Math.max(this.maxOperationDefinitionDepth,depth);
 			this.maxDepth = this.maxOperationDefinitionDepth;
 		}
-		//console.log('MAXX DEPTHH ', this.maxDepth  );
+		console.log('MAXX DEPTHH ', this.maxDepth  );
 	}
 
 
 	onOperationDefinitionLeave(){
 		if(this.clientMax < this.maxDepth){
-			console.log('query is tooo nested'.toUpperCase())
+			// console.log('query is tooo nested'.toUpperCase())
 			throw new GraphQLError(
 				`Query is to complex, MAX DEPTH is ${this.clientMax}, Current DEPTH is ${this.maxDepth}`
 			);
 		}
-		console.log('Exited the Rule')
+		// console.log('Exited the Rule')
 	}
 }
 

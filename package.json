@@ -4,7 +4,8 @@
   "description": "Depth/Cost Complexity is up and running.",
   "main": "./graphqlTestServer/app.js",
   "scripts": {
-    "server":"nodemon ./graphqlTestServer/app.js"
+    "server": "nodemon ./graphqlTestServer/app.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.1",
+    "jest": "^23.5.0",
     "mocha": "^5.2.0"
   }
 }

@@ -22,10 +22,10 @@ class RateLimitComplexity{
 		this.calculateCost(operationNode)
 	}
 
-	calculateCost(node, iteration=0){
-		// console.log('iteration ', iteration);
+	calculateCost(node){
 		if(node.selectionSet){
 			node.selectionSet.selections.forEach(childNode => {
+				
 				if(this.argsArray.length === 0){
 					this.cost += 1;
 					if(childNode.arguments.length == 0){
@@ -33,8 +33,10 @@ class RateLimitComplexity{
 					}else{
 						this.argsArray.push(Number(childNode.arguments[0].value.value) );
 					}
-					this.calculateCost(childNode, iteration+=1);
+					this.calculateCost(childNode);
 				} else {
+					// console.log('IS LENGTH FAILING HERE?' , childNode.arguments.length)
+
 					if(childNode.arguments.length > 0){
 						this.cost += this.argsArray.reduce((product, num) => {
 						return product*=num;
@@ -46,18 +48,18 @@ class RateLimitComplexity{
 								return product*=num;
 							},1);
 						this.argsArray.push(1);
-						this.calculateCost(childNode,iteration+=1);
+						this.calculateCost(childNode);
 						}
 				}
 				console.log("COST", this.cost);
+				return this.cost;
 			})
 		}
 	}
 
 	onOperationDefinitionLeave(){
-		console.log(`(this.cost > this.rateLimit ${this.cost > this.rateLimit} this.cost ${this.cost} this.rateLimit ${this.rateLimit}`)
 		if(this.cost > this.rateLimit){
-			throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.rateLimit} greater than the permitted request`)
+			throw new GraphQLError(`The score of your query is ${this.cost}. Maximum score permitted is ${this.rateLimit}. Please modify your query.`)
 		}
 	}
 }
