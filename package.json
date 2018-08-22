@@ -5,13 +5,9 @@
   "main": "./graphqlTestServer/app.js",
   "scripts": {
     "server": "nodemon ./graphqlTestServer/app.js",
-<<<<<<< HEAD
-    "test": "jest"
-=======
     "flow": "flow",
 		"build": "babel src/ --out-dir dist/  "
 		
->>>>>>> eb6057d08953b14976e9d299646753358c287d95
   },
   "repository": {
     "type": "git",
@@ -48,12 +44,8 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.1",
-<<<<<<< HEAD
-    "jest": "^23.5.0",
-=======
     "flow-bin": "^0.79.1",
     "flow-remove-types": "^1.2.3",
->>>>>>> eb6057d08953b14976e9d299646753358c287d95
     "mocha": "^5.2.0"
   }
 }

@@ -2,16 +2,10 @@ const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const mongoose = require('mongoose');
 const app = express();
-<<<<<<< HEAD
-const schema = require('./schema/schema');
-const depthComplexityWrapper = require('../src/depthRule/indexDepth.js');
-const RateLimitWrapper = require('../src/rateLimitRule/indexRate.js');
-=======
 const schema =  require('./schema/schema.js');
 const depthComplexity = require('../dist/depthRule/indexDepth.js');
 const costLimit = require('../dist/rateLimitRule/indexCost.js');
 
->>>>>>> eb6057d08953b14976e9d299646753358c287d95
 //const bodyParser = require('body-parser');
 
 mongoose.connect("mongodb://satyam:n5u6n8s9@ds017165.mlab.com:17165/testdb1");
@@ -33,13 +27,8 @@ app.use('/graphql', graphqlHTTP((req,res,gqlParams)=>({
 		schema,
 		graphiql: true,
 		validationRules:[
-<<<<<<< HEAD
-			// depthComplexityWrapper(10),
-			RateLimitWrapper(6)
-=======
 			depthComplexity(ruleDepth),
 		  costLimit(ruleCost)
->>>>>>> eb6057d08953b14976e9d299646753358c287d95
 		]
 	})))
 
