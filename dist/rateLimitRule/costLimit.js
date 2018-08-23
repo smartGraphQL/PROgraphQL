@@ -47,13 +47,13 @@ var CostLimitComplexity = function () {
 						}
 						_this.calculateCost(childNode, iteration += 1);
 					} else {
-						if (childNode.arguments.length > 0) {
+						if (childNode.arguments && childNode.arguments.length > 0) {
 							_this.cost += _this.argsArray.reduce(function (product, num) {
 								return product *= num;
 							}, 1);
 							_this.argsArray.push(Number(childNode.arguments[0].value.value));
 							_this.calculateCost(childNode, iteration += 1);
-						} else if (childNode.arguments.length == 0 && childNode.selectionSet) {
+						} else if (childNode.arguments && childNode.arguments.length == 0 && childNode.selectionSet) {
 							_this.cost += _this.argsArray.reduce(function (product, num) {
 								return product *= num;
 							}, 1);

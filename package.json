@@ -6,8 +6,8 @@
   "scripts": {
     "server": "nodemon ./graphqlTestServer/app.js",
     "flow": "flow",
-		"build": "babel src/ --out-dir dist/  "
-		
+    "build": "babel src/ --out-dir dist/  ",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
     "eslint-plugin-react": "^7.11.1",
     "flow-bin": "^0.79.1",
     "flow-remove-types": "^1.2.3",
+    "jest": "^23.5.0",
     "mocha": "^5.2.0"
   }
 }
