@@ -25,7 +25,7 @@ class CostLimitComplexity {
   argsArray: Array<number>;
   cost: number;
 
-  constructor(context: ValidationContext, config: RateLimitOptions) {
+  constructor(context: ValidationContext, config: costComplexityOptions) {
     this.context = context;
 
     this.argsArray = [];
@@ -42,39 +42,41 @@ class CostLimitComplexity {
     this.calculateCost(operationNode);
   }
 
-	calculateCost(node :OperationDefinitionNode|FieldNode):void {
-		// console.log('iteration ', iteration);
-		if(node.selectionSet){
-			node.selectionSet.selections.forEach(childNode => {
-				if(this.argsArray.length === 0){
-					this.cost += 1;
+  calculateCost(node: OperationDefinitionNode | FieldNode): void {
+    // console.log('iteration ', iteration);
+    if (node.selectionSet) {
+      node.selectionSet.selections.forEach(childNode => {
+        if (this.argsArray.length === 0) {
+          this.cost += 1;
 
-					if(childNode.arguments.length == 0) this.argsArray.push(1);
-					else this.argsArray.push(Number(childNode.arguments[0].value.value));
-					
-					this.calculateCost(childNode, iteration+=1);
+          if (childNode.arguments.length == 0) this.argsArray.push(1);
+          else this.argsArray.push(Number(childNode.arguments[0].value.value));
 
-				} else if(childNode.arguments && childNode.arguments.length > 0){
-						this.cost += this.argsArray.reduce((product, num) => (product*num),1);
-						this.argsArray.push(Number(childNode.arguments[0].value.value));
-						this.calculateCost(childNode,iteration+=1);
-
-				} else if(childNode.arguments && childNode.arguments.length == 0 &&childNode.selectionSet){
-						this.cost += this.argsArray.reduce((product, num) => (product*num ),1);
-						this.argsArray.push(1);
-						this.calculateCost(childNode);
-				}
-			}
-		}
-}
+          this.calculateCost(childNode);
+        } else if (childNode.arguments && childNode.arguments.length > 0) {
+          this.cost += this.argsArray.reduce((product, num) => product * num, 1);
+          this.argsArray.push(Number(childNode.arguments[0].value.value));
+          this.calculateCost(childNode);
+        } else if (
+          childNode.arguments &&
+          childNode.arguments.length == 0 &&
+          childNode.selectionSet
+        ) {
+          this.cost += this.argsArray.reduce((product, num) => product * num, 1);
+          this.argsArray.push(1);
+          this.calculateCost(childNode);
+        }
+      });
+    }
+  }
 
   validateQuery(): void | GraphQLError {
     // let { costLimit, onSuccess, onError } = this.config;
 
     if (costLimit < this.cost) {
-      if (typeof onError === 'function') {
+      if (typeof onError === 'function')
         throw new GraphQLError(this.onError(this.cost, this.costLimit));
-      } else {
+      else {
         console.log(this.onError(this.cost, this.costLimit));
         throw new GraphQLError(
           `You are asking for ${this.cost} records. This is ${this.cost -

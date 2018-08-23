@@ -32,7 +32,7 @@ class DepthComplexity {
   config: DepthLimitOptions;
   maxDepth: number;
 
-  constructor(context: ValidationContext, config: DepthLimitOptions) {
+  constructor(context: ValidationContext, config: DepthComplexityOptions) {
     this.context = context;
     this.operationDefinitionDepth = 0;
     this.fragmentDefinitionDepth = 0;
