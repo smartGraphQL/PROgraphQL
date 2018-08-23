@@ -8,7 +8,7 @@ const schema = require('./assets/schema');
 describe('Query Complexity Analysis', () => {
   const typeInfo = new TypeInfo(schema);
 
-  test('starting complexity should be 0', () => {
+  test('initial complexity should be 0', () => {
     const context = new ValidationContext(schema);
     const complexity = new RateLimitComplexity(context, 2);
     expect(complexity.cost).toBe(0);
