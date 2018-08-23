@@ -25,7 +25,7 @@ app.use('/graphql', graphqlHTTP((req,res,gqlParams)=>({
 		schema,
 		graphiql: true,
 		validationRules:[
-			depthComplexity(ruleDepth),
+		  depthComplexity(ruleDepth),
 		  costLimit(ruleCost)
 		]
 	})))

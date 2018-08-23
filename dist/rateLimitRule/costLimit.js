@@ -5,6 +5,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var graphql = require('graphql');
+
 var GraphQLError = graphql.GraphQLError;
 
 var CostLimitComplexity = function () {
@@ -38,12 +39,13 @@ var CostLimitComplexity = function () {
 			// console.log('iteration ', iteration);
 			if (node.selectionSet) {
 				node.selectionSet.selections.forEach(function (childNode) {
+					console.log("childnode args", childNode.arguments);
 					if (_this.argsArray.length === 0) {
 						_this.cost += 1;
-						if (childNode.arguments.length == 0) {
-							_this.argsArray.push(1);
-						} else {
+						if (childNode.arguments && childNode.arguments.length > 0) {
 							_this.argsArray.push(Number(childNode.arguments[0].value.value));
+						} else {
+							_this.argsArray.push(1);
 						}
 						_this.calculateCost(childNode, iteration += 1);
 					} else {
@@ -80,7 +82,7 @@ var CostLimitComplexity = function () {
 					throw new GraphQLError(onError(this.cost, costLimit));
 				} else {
 					console.log(onError(this.cost, costLimit));
-					throw new GraphQLError('You are asking for ' + this.cost + ' records. This is ' + (this.cost - this.costLimit) + ' greater than the permitted request');
+					throw new GraphQLError('You are asking for ' + this.cost + ' records. This is ' + (this.cost - costLimit) + ' greater than the permitted request');
 				}
 			} else {
 				if (typeof onSuccess === 'function') {

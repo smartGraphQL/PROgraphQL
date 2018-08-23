@@ -15,6 +15,7 @@ export type costComplexityOptions = {
 }
 
 const graphql = require('graphql');
+
 const {
 	GraphQLError,
 } = graphql;
@@ -26,8 +27,9 @@ class CostLimitComplexity{
 	OperationDefinition: Object;
 	argsArray: Array<number>;
 	cost:number;
+	config:costComplexityOptions;
 
-	constructor(context:ValidationContext, config:RateLimitOptions){
+	constructor(context:ValidationContext, config:costComplexityOptions){
 		this.context = context;
 
 		this.argsArray = [];
@@ -42,19 +44,20 @@ class CostLimitComplexity{
 
 
 	onOperationDefinitionEnter(operationNode:OperationDefinitionNode){
-		this.calculateCost(operationNode:OperationDefinitionNode)
+		this.calculateCost(operationNode)
 	}
 
-	calculateCost(node :OperationDefinitionNode|FieldNode, iteration=0):void{
+	calculateCost(node :OperationDefinitionNode|FieldNode, iteration :number =0):void{
 		// console.log('iteration ', iteration);
 		if(node.selectionSet){
 			node.selectionSet.selections.forEach(childNode => {
+				console.log("childnode args",childNode.arguments)
 				if(this.argsArray.length === 0){
 					this.cost += 1;
-					if(childNode.arguments.length == 0){
-						this.argsArray.push(1);
-					}else{
+					if(childNode.arguments && childNode.arguments.length > 0){
 						this.argsArray.push(Number(childNode.arguments[0].value.value) );
+					}else{
+						this.argsArray.push(1);
 					}
 					this.calculateCost(childNode, iteration+=1);
 				} else {
@@ -87,7 +90,7 @@ class CostLimitComplexity{
 				throw new GraphQLError(onError(this.cost, costLimit));
 			} else {
 				console.log(onError(this.cost, costLimit));
-				throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-this.costLimit} greater than the permitted request`)
+				throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-costLimit} greater than the permitted request`)
 			}
 		} else {
 			if(typeof onSuccess === 'function'){
