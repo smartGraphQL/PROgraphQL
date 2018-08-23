@@ -58,13 +58,13 @@ class CostLimitComplexity{
 					}
 					this.calculateCost(childNode, iteration+=1);
 				} else {
-					if(childNode.arguments.length > 0){
+					if(childNode.arguments && childNode.arguments.length > 0){
 						this.cost += this.argsArray.reduce((product, num) => {
 						return product*=num;
 						},1);
 						this.argsArray.push(Number(childNode.arguments[0].value.value));
 						this.calculateCost(childNode,iteration+=1);
-					}else if(childNode.arguments.length == 0 &&childNode.selectionSet){
+					}else if(childNode.arguments && childNode.arguments.length == 0 &&childNode.selectionSet){
 						this.cost += this.argsArray.reduce((product, num) => {
 								return product*=num;
 							},1);
