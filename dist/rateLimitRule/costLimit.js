@@ -30,42 +30,67 @@ var CostLimitComplexity = function () {
 			this.calculateCost(operationNode);
 		}
 	}, {
-		key: 'calculateCost',
-		value: function calculateCost(node) {
+		key: 'updateArgument',
+		value: function updateArgument(node) {
+			console.log(node.kind);
+		}
+	}, {
+		key: 'updateArgumentArray',
+		value: function updateArgumentArray(addConstant, node) {
 			var _this = this;
 
-			var iteration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-			// console.log('iteration ', iteration);
-			if (node.selectionSet) {
-				node.selectionSet.selections.forEach(function (childNode) {
-					console.log("childnode args", childNode.arguments);
-					if (_this.argsArray.length === 0) {
-						_this.cost += 1;
-						if (childNode.arguments && childNode.arguments.length > 0) {
-							_this.argsArray.push(Number(childNode.arguments[0].value.value));
-						} else {
-							_this.argsArray.push(1);
-						}
-						_this.calculateCost(childNode, iteration += 1);
-					} else {
-						if (childNode.arguments && childNode.arguments.length > 0) {
-							_this.cost += _this.argsArray.reduce(function (product, num) {
-								return product *= num;
-							}, 1);
-							_this.argsArray.push(Number(childNode.arguments[0].value.value));
-							_this.calculateCost(childNode, iteration += 1);
-						} else if (childNode.arguments && childNode.arguments.length == 0 && childNode.selectionSet) {
-							_this.cost += _this.argsArray.reduce(function (product, num) {
-								return product *= num;
-							}, 1);
-							_this.argsArray.push(1);
-							_this.calculateCost(childNode, iteration += 1);
+			if (addConstant) {
+				this.argsArray.push(1);
+				return;
+			}
+			if (typeof node !== 'undefined' && node.arguments) {
+				node.arguments.forEach(function (argNode) {
+					if (argNode.name === 'first' || 'last') {
+						if (argNode.value.kind === 'IntValue') {
+							var argValue = Number(argNode.value.value);
+							isNaN(argValue) ? '' : _this.argsArray.push(argValue);
 						}
 					}
 				});
 			}
-			// console.log("COST", this.cost);
+		}
+	}, {
+		key: 'queryFirstIteration',
+		value: function queryFirstIteration(node) {
+			this.cost += 1;
+			if (node.arguments) this.updateArgumentArray(false, node);else this.updateArgumentArray(true);
+			this.calculateCost(node);
+		}
+	}, {
+		key: 'calculateCost',
+		value: function calculateCost(node) {
+			var _this2 = this;
+
+			if (node.kind === 'FragmentSpread') return;
+			if (node.selectionSet) {
+				node.selectionSet.selections.forEach(function (child) {
+					if (child.kind === 'Field') {
+						if (_this2.argsArray.length === 0) {
+							_this2.queryFirstIteration(child);
+						} else {
+							if (child.arguments && child.arguments.length > 0) {
+								_this2.cost += _this2.argsArray.reduce(function (product, num) {
+									return product *= num;
+								}, 1);
+								_this2.updateArgumentArray(false, child);
+								_this2.calculateCost(child);
+							} else if (child.arguments && child.arguments.length == 0 && child.selectionSet) {
+								_this2.cost += _this2.argsArray.reduce(function (product, num) {
+									return product *= num;
+								}, 1);
+								_this2.updateArgumentArray(true);
+
+								_this2.calculateCost(child);
+							}
+						}
+					}
+				});
+			}
 		}
 	}, {
 		key: 'validateQuery',
@@ -81,7 +106,7 @@ var CostLimitComplexity = function () {
 					// console.log('sjdksd' + onError(this.cost, costLimit));
 					throw new GraphQLError(onError(this.cost, costLimit));
 				} else {
-					console.log(onError(this.cost, costLimit));
+					// console.log(onError(this.cost, costLimit));
 					throw new GraphQLError('You are asking for ' + this.cost + ' records. This is ' + (this.cost - costLimit) + ' greater than the permitted request');
 				}
 			} else {

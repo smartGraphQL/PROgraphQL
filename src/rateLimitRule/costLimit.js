@@ -5,13 +5,17 @@ import type {
 	OperationDefinitionNode,
 	FieldNode,
 	FragmentSpreadNode,
-	InlineFragmentNode
+	InlineFragmentNode,
+	ArgumentNode,
+	NameNode,
+	InputValueDefinitionNode,
+	 IntValueNode
 } from 'graphql';
 
 export type costComplexityOptions = {
 	costLimit: number,
 	onSuccess ?: (depth:number)=>void,
-	onError ?:(actual:number,maxDepth:number)=>GraphQLError
+	onError ?:(actual:number,maxDepth:number)=>string
 }
 
 const graphql = require('graphql');
@@ -47,38 +51,64 @@ class CostLimitComplexity{
 		this.calculateCost(operationNode)
 	}
 
-	calculateCost(node :OperationDefinitionNode|FieldNode, iteration :number =0):void{
-		// console.log('iteration ', iteration);
-		if(node.selectionSet){
-			node.selectionSet.selections.forEach(childNode => {
-				console.log("childnode args",childNode.arguments)
-				if(this.argsArray.length === 0){
-					this.cost += 1;
-					if(childNode.arguments && childNode.arguments.length > 0){
-						this.argsArray.push(Number(childNode.arguments[0].value.value) );
-					}else{
-						this.argsArray.push(1);
+	updateArgument(node:ArgumentNode):void{
+		console.log(node.kind);
+	}
+
+
+	updateArgumentArray(addConstant:boolean,node?:FieldNode):void{
+		if(addConstant) {
+				this.argsArray.push(1);
+				return;
+		}
+		if(typeof node !== 'undefined' && node.arguments){
+			node.arguments.forEach(argNode=>{
+					if(argNode.name === 'first' || 'last'){
+							if(argNode.value.kind === 'IntValue'){
+								let argValue = Number(argNode.value.value);
+								isNaN(argValue)? '' : this.argsArray.push(argValue);
+							}
 					}
-					this.calculateCost(childNode, iteration+=1);
-				} else {
-					if(childNode.arguments && childNode.arguments.length > 0){
-						this.cost += this.argsArray.reduce((product, num) => {
-						return product*=num;
-						},1);
-						this.argsArray.push(Number(childNode.arguments[0].value.value));
-						this.calculateCost(childNode,iteration+=1);
-					}else if(childNode.arguments && childNode.arguments.length == 0 &&childNode.selectionSet){
-						this.cost += this.argsArray.reduce((product, num) => {
+			});
+		}
+	}
+
+
+	queryFirstIteration(node:FieldNode):void{
+		this.cost += 1;
+		if(node.arguments) this.updateArgumentArray(false,node);
+		else this.updateArgumentArray(true)
+		this.calculateCost(node);
+	}
+
+
+
+	calculateCost(node:(OperationDefinitionNode|FieldNode|FragmentSpreadNode|InlineFragmentNode)):void{
+		if(node.kind === 'FragmentSpread') return;
+		if(node.selectionSet){
+			node.selectionSet.selections.forEach(child => {
+				if(child.kind === ('Field') ){
+					if(this.argsArray.length === 0){
+						this.queryFirstIteration(child);
+					} else {
+						if(child.arguments && child.arguments.length > 0){
+							this.cost += this.argsArray.reduce((product, num) => {
 								return product*=num;
 							},1);
-						this.argsArray.push(1);
-						this.calculateCost(childNode,iteration+=1);
-						}
-				}
+							this.updateArgumentArray(false,child);
+							this.calculateCost(child);
+						}else if(child.arguments && child.arguments.length == 0 && child.selectionSet){
+							this.cost += this.argsArray.reduce((product, num) => {
+									return product*=num;
+								},1);
+							this.updateArgumentArray(true);
 
+							this.calculateCost(child);
+						}
+					}
+				}
 			})
 		}
-		// console.log("COST", this.cost);
 	}
 
 	validateQuery():void|GraphQLError{
@@ -89,7 +119,7 @@ class CostLimitComplexity{
 				// console.log('sjdksd' + onError(this.cost, costLimit));
 				throw new GraphQLError(onError(this.cost, costLimit));
 			} else {
-				console.log(onError(this.cost, costLimit));
+				// console.log(onError(this.cost, costLimit));
 				throw new GraphQLError(`You are asking for ${this.cost} records. This is ${this.cost-costLimit} greater than the permitted request`)
 			}
 		} else {

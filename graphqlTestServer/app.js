@@ -12,7 +12,7 @@ mongoose.connection.once('open', ()=>{
 })
 
 const ruleCost = {
-	costLimit: 2,
+	costLimit: 30,
 	onSuccess: (cost) => (`Complete, query cost is ${cost}`),
 	onError: (cost, costLimit) => (`Error: Cost is ${cost} but cost limit is ${costLimit}`)
 }
