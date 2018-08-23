@@ -1,22 +1,18 @@
 const {
-    parse,
-    TypeInfo,
-    ValidationContext,
-    visit,
-    visitWithTypeInfo,
-  } = require ('graphql');
+  parse, TypeInfo, ValidationContext, visit, visitWithTypeInfo,
+} = require('graphql');
 
 const RateLimitComplexity = require('.././rateLimitRule/rateLimit');
 const schema = require('./assets/schema');
 
 describe('Query Complexity Analysis', () => {
-    const typeInfo = new TypeInfo(schema);
+  const typeInfo = new TypeInfo(schema);
 
   test('starting complexity should be 0', () => {
-        const context = new ValidationContext(schema);
-        const complexity = new RateLimitComplexity(context, 2);
-        expect(complexity.cost).toBe(0);
-  })
+    const context = new ValidationContext(schema);
+    const complexity = new RateLimitComplexity(context, 2);
+    expect(complexity.cost).toBe(0);
+  });
 
   test('should calculate cost of query without arguments', () => {
     const ast = parse(`
@@ -63,4 +59,3 @@ describe('Query Complexity Analysis', () => {
     expect(complexity.cost).toBe(16);
   });
 });
-
