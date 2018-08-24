@@ -44,6 +44,7 @@ class CostLimitComplexity {
 
   calculateCost(node: OperationDefinitionNode | FieldNode): void {
     // console.log('iteration ', iteration);
+
     if (node.selectionSet) {
       node.selectionSet.selections.forEach(childNode => {
         if (this.argsArray.length === 0) {
@@ -71,25 +72,29 @@ class CostLimitComplexity {
   }
 
   validateQuery(): void | GraphQLError {
-    // let { costLimit, onSuccess, onError } = this.config;
+    // const { costLimit, onSuccess, onError } = this.config;
 
-    if (costLimit < this.cost) {
+    if (this.config.costLimit < this.cost) {
+      console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
       if (typeof onError === 'function')
-        throw new GraphQLError(this.onError(this.cost, this.costLimit));
+        throw new GraphQLError('ERRORSROS IS FUNCTION CONDITOINAL');
       else {
-        console.log(this.onError(this.cost, this.costLimit));
+        console.log('ERRROROSRO');
+        // console.log(this.config.onError(this.cost, this.config.costLimit));
         throw new GraphQLError(
-          `You are asking for ${this.cost} records. This is ${this.cost -
-            this.costLimit} greater than the permitted request`,
+          `Actual cost is greater than set cost limit.`,
+          // `You are asking for ${this.cost} records. This is ${this.cost -
+          //   costLimit} greater than the permitted request`,
         );
       }
-    } else if (typeof this.onSuccess === 'function') {
-      console.log(this.onSuccess(this.cost));
+    } else if (typeof this.config.onSuccess === 'function') {
+      console.log(this.config.onSuccess(this.cost));
     }
   }
 
   onOperationDefinitionLeave() {
-    this.validateQuery();
+    // console.log(this.config);
+    return this.validateQuery();
   }
 }
 

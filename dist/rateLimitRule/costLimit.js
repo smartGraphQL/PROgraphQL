@@ -34,6 +34,7 @@ var CostLimitComplexity = function () {
       var _this = this;
 
       // console.log('iteration ', iteration);
+
       if (node.selectionSet) {
         node.selectionSet.selections.forEach(function (childNode) {
           if (_this.argsArray.length === 0) {
@@ -47,7 +48,7 @@ var CostLimitComplexity = function () {
               return product * num;
             }, 1);
             _this.argsArray.push(Number(childNode.arguments[0].value.value));
-            _this.calculateCost(childNode, iteration += 1);
+            _this.calculateCost(childNode);
           } else if (childNode.arguments && childNode.arguments.length == 0 && childNode.selectionSet) {
             _this.cost += _this.argsArray.reduce(function (product, num) {
               return product * num;
@@ -61,23 +62,22 @@ var CostLimitComplexity = function () {
   }, {
     key: 'validateQuery',
     value: function validateQuery() {
-      // let { costLimit, onSuccess, onError } = this.config;
+      // const { costLimit, onSuccess, onError } = this.config;
 
-      if (costLimit < this.cost) {
-        if (typeof onError === 'function') {
-          throw new GraphQLError(this.onError(this.cost, this.costLimit));
-        } else {
-          console.log(this.onError(this.cost, this.costLimit));
-          throw new GraphQLError('You are asking for ' + this.cost + ' records. This is ' + (this.cost - this.costLimit) + ' greater than the permitted request');
+      if (this.config.costLimit < this.cost) {
+        if (typeof onError === 'function') throw new GraphQLError(onError(this.config.cost, this.costLimit));else {
+          console.log(onError(this.cost, this.config.costLimit));
+          throw new GraphQLError('Actual cost is greater than set cost limit.');
         }
-      } else if (typeof this.onSuccess === 'function') {
-        console.log(this.onSuccess(this.cost));
+      } else if (typeof this.config.onSuccess === 'function') {
+        console.log(this.config.onSuccess(this.cost));
       }
     }
   }, {
     key: 'onOperationDefinitionLeave',
     value: function onOperationDefinitionLeave() {
-      this.validateQuery();
+      console.log(this.config);
+      return this.validateQuery();
     }
   }]);
 

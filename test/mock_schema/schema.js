@@ -11,11 +11,10 @@ const {
 } = require('graphql');
 
 const Item = new GraphQLObjectType({
-  name: 'Item',
+  name: 'test3333',
   fields: () => ({
     variableList: {
       type: Item,
-      complexity: (args, childComplexity) => childComplexity * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt,
@@ -23,10 +22,9 @@ const Item = new GraphQLObjectType({
       },
     },
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, complexity: 20 },
+    complexScalar: { type: GraphQLString },
     variableScalar: {
       type: Item,
-      complexity: args => 10 * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt,
@@ -83,7 +81,6 @@ const Query = new GraphQLObjectType({
     name: { type: GraphQLString },
     variableList: {
       type: Item,
-      complexity: (args, childComplexity) => childComplexity * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt,
@@ -93,11 +90,10 @@ const Query = new GraphQLObjectType({
     interface: { type: NameInterface },
     enum: { type: EnumType },
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, complexity: 20 },
+    complexScalar: { type: GraphQLString },
     union: { type: Union },
     variableScalar: {
       type: Item,
-      complexity: args => 10 * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt,

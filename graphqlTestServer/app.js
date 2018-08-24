@@ -15,19 +15,24 @@ mongoose.connection.once('open', () => {
 const ruleCost = {
   costLimit: 2,
   onSuccess: cost => `Complete, query cost is ${cost}`,
-  onError: (cost, costLimit) => `Error: Cost is ${cost} but cost limit is ${costLimit}`,
+  onError: (cost, setCostLimit) => `Error: Cost is ${cost} but cost limit is ${setCostLimit}`,
 };
+
 const ruleDepth = {
   depthLimit: 10,
   onSuccess: depth => `Complete, query depth is ${depth}`,
   onError: (depth, maximumDepth) => `Error: Current depth is ${depth} but max depth is ${maximumDepth}`,
 };
+
 app.use(
   '/graphql',
   graphqlHTTP(() => ({
     schema,
     graphiql: true,
-    validationRules: [depthComplexity(ruleDepth), costLimit(ruleCost)],
+    validationRules: [
+      // depthComplexity(ruleDepth),
+      costLimit(ruleCost),
+    ],
   })),
 );
 
