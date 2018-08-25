@@ -24,7 +24,7 @@ const ruleDepth = {
 };
 app.use(
   '/graphql',
-  graphqlHTTP((req, res, gqlParams) => ({
+  graphqlHTTP(() => ({
     schema,
     graphiql: true,
     validationRules: [depthComplexity(ruleDepth), costLimit(ruleCost)],
