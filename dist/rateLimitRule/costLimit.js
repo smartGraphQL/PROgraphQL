@@ -5,6 +5,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var graphql = require('graphql');
+
 var GraphQLError = graphql.GraphQLError;
 
 var CostLimitComplexity = function () {
@@ -23,6 +24,7 @@ var CostLimitComplexity = function () {
     };
   }
 
+<<<<<<< HEAD
   _createClass(CostLimitComplexity, [{
     key: 'onOperationDefinitionEnter',
     value: function onOperationDefinitionEnter(operationNode) {
@@ -41,6 +43,83 @@ var CostLimitComplexity = function () {
             _this.cost += 1;
 
             if (childNode.arguments.length == 0) _this.argsArray.push(1);else _this.argsArray.push(Number(childNode.arguments[0].value.value));
+=======
+	_createClass(CostLimitComplexity, [{
+		key: 'onOperationDefinitionEnter',
+		value: function onOperationDefinitionEnter(operationNode) {
+			this.calculateCost(operationNode);
+		}
+	}, {
+		key: 'updateArgument',
+		value: function updateArgument(node) {
+			console.log(node.kind);
+		}
+	}, {
+		key: 'updateArgumentArray',
+		value: function updateArgumentArray(addConstant, node) {
+			var _this = this;
+
+			if (addConstant) {
+				this.argsArray.push(1);
+				return;
+			}
+			if (typeof node !== 'undefined' && node.arguments) {
+				node.arguments.forEach(function (argNode) {
+					if (argNode.name === 'first' || 'last') {
+						if (argNode.value.kind === 'IntValue') {
+							var argValue = Number(argNode.value.value);
+							isNaN(argValue) ? '' : _this.argsArray.push(argValue);
+						}
+					}
+				});
+			}
+		}
+	}, {
+		key: 'queryFirstIteration',
+		value: function queryFirstIteration(node) {
+			this.cost += 1;
+			if (node.arguments) this.updateArgumentArray(false, node);else this.updateArgumentArray(true);
+			this.calculateCost(node);
+		}
+	}, {
+		key: 'calculateCost',
+		value: function calculateCost(node) {
+			var _this2 = this;
+
+			if (node.kind === 'FragmentSpread') return;
+			if (node.selectionSet) {
+				node.selectionSet.selections.forEach(function (child) {
+					if (child.kind === 'Field') {
+						if (_this2.argsArray.length === 0) {
+							_this2.queryFirstIteration(child);
+						} else {
+							if (child.arguments && child.arguments.length > 0) {
+								_this2.cost += _this2.argsArray.reduce(function (product, num) {
+									return product *= num;
+								}, 1);
+								_this2.updateArgumentArray(false, child);
+								_this2.calculateCost(child);
+							} else if (child.arguments && child.arguments.length == 0 && child.selectionSet) {
+								_this2.cost += _this2.argsArray.reduce(function (product, num) {
+									return product *= num;
+								}, 1);
+								_this2.updateArgumentArray(true);
+
+								_this2.calculateCost(child);
+							}
+						}
+					}
+				});
+			}
+		}
+	}, {
+		key: 'validateQuery',
+		value: function validateQuery() {
+			var _config = this.config,
+			    costLimit = _config.costLimit,
+			    onSuccess = _config.onSuccess,
+			    onError = _config.onError;
+>>>>>>> 290851f8e628c8c28a8d2bf524867e7c89cf80da
 
             _this.calculateCost(childNode);
           } else if (childNode.arguments && childNode.arguments.length > 0) {
@@ -64,6 +143,7 @@ var CostLimitComplexity = function () {
     value: function validateQuery() {
       // const { costLimit, onSuccess, onError } = this.config;
 
+<<<<<<< HEAD
       if (this.config.costLimit < this.cost) {
         console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
         if (typeof onError === 'function') throw new GraphQLError('ERRORSROS IS FUNCTION CONDITOINAL');else {
@@ -82,6 +162,28 @@ var CostLimitComplexity = function () {
       return this.validateQuery();
     }
   }]);
+=======
+			if (costLimit < this.cost) {
+				if (typeof onError === 'function') {
+					// console.log('sjdksd' + onError(this.cost, costLimit));
+					throw new GraphQLError(onError(this.cost, costLimit));
+				} else {
+					// console.log(onError(this.cost, costLimit));
+					throw new GraphQLError('You are asking for ' + this.cost + ' records. This is ' + (this.cost - costLimit) + ' greater than the permitted request');
+				}
+			} else {
+				if (typeof onSuccess === 'function') {
+					console.log(onSuccess(this.cost));
+				}
+			}
+		}
+	}, {
+		key: 'onOperationDefinitionLeave',
+		value: function onOperationDefinitionLeave() {
+			this.validateQuery();
+		}
+	}]);
+>>>>>>> 290851f8e628c8c28a8d2bf524867e7c89cf80da
 
   return CostLimitComplexity;
 }();

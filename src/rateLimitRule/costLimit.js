@@ -7,15 +7,20 @@ import type {
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
+  ArgumentNode,
+  NameNode,
+  InputValueDefinitionNode,
+  IntValueNode,
 } from 'graphql';
 
 export type costComplexityOptions = {
   costLimit: number,
   onSuccess?: (depth: number) => void,
-  onError?: (actual: number, maxDepth: number) => GraphQLError,
+  onError?: (actual: number, maxDepth: number) => string,
 };
 
 const graphql = require('graphql');
+
 const { GraphQLError } = graphql;
 
 class CostLimitComplexity {
@@ -24,6 +29,7 @@ class CostLimitComplexity {
   OperationDefinition: Object;
   argsArray: Array<number>;
   cost: number;
+  config: costComplexityOptions;
 
   constructor(context: ValidationContext, config: costComplexityOptions) {
     this.context = context;
@@ -42,30 +48,63 @@ class CostLimitComplexity {
     this.calculateCost(operationNode);
   }
 
-  calculateCost(node: OperationDefinitionNode | FieldNode): void {
-    // console.log('iteration ', iteration);
-    console.log(node.selectionSet);
+  onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
+    this.calculateCost(operationNode);
+  }
+
+  updateArgument(node: ArgumentNode): void {
+    console.log(node.kind);
+  }
+
+  updateArgumentArray(addConstant: boolean, node?: FieldNode): void {
+    if (addConstant) {
+      this.argsArray.push(1);
+      return;
+    }
+    if (typeof node !== 'undefined' && node.arguments) {
+      node.arguments.forEach(argNode => {
+        if (argNode.name === 'first' || 'last') {
+          if (argNode.value.kind === 'IntValue') {
+            let argValue = Number(argNode.value.value);
+            isNaN(argValue) ? '' : this.argsArray.push(argValue);
+          }
+        }
+      });
+    }
+  }
+
+  queryFirstIteration(node: FieldNode): void {
+    this.cost += 1;
+    if (node.arguments) this.updateArgumentArray(false, node);
+    else this.updateArgumentArray(true);
+    this.calculateCost(node);
+  }
+
+  calculateCost(
+    node: OperationDefinitionNode | FieldNode | FragmentSpreadNode | InlineFragmentNode,
+  ): void {
+    if (node.kind === 'FragmentSpread') return;
     if (node.selectionSet) {
-      node.selectionSet.selections.forEach(childNode => {
-        if (this.argsArray.length === 0) {
-          this.cost += 1;
+      node.selectionSet.selections.forEach(child => {
+        if (child.kind === 'Field') {
+          if (this.argsArray.length === 0) {
+            this.queryFirstIteration(child);
+          } else {
+            if (child.arguments && child.arguments.length > 0) {
+              this.cost += this.argsArray.reduce((product, num) => {
+                return (product *= num);
+              }, 1);
+              this.updateArgumentArray(false, child);
+              this.calculateCost(child);
+            } else if (child.arguments && child.arguments.length == 0 && child.selectionSet) {
+              this.cost += this.argsArray.reduce((product, num) => {
+                return (product *= num);
+              }, 1);
+              this.updateArgumentArray(true);
 
-          if (childNode.arguments.length == 0) this.argsArray.push(1);
-          else this.argsArray.push(Number(childNode.arguments[0].value.value));
-
-          this.calculateCost(childNode);
-        } else if (childNode.arguments && childNode.arguments.length > 0) {
-          this.cost += this.argsArray.reduce((product, num) => product * num, 1);
-          this.argsArray.push(Number(childNode.arguments[0].value.value));
-          this.calculateCost(childNode);
-        } else if (
-          childNode.arguments &&
-          childNode.arguments.length == 0 &&
-          childNode.selectionSet
-        ) {
-          this.cost += this.argsArray.reduce((product, num) => product * num, 1);
-          this.argsArray.push(1);
-          this.calculateCost(childNode);
+              this.calculateCost(child);
+            }
+          }
         }
       });
     }
@@ -74,21 +113,21 @@ class CostLimitComplexity {
   validateQuery(): void | GraphQLError {
     // const { costLimit, onSuccess, onError } = this.config;
 
-    if (this.config.costLimit < this.cost) {
-      console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
-      if (typeof onError === 'function')
-        throw new GraphQLError('ERRORSROS IS FUNCTION CONDITOINAL');
-      else {
-        console.log('ERRROROSRO');
-        // console.log(this.config.onError(this.cost, this.config.costLimit));
+    if (costLimit < this.cost) {
+      if (typeof onError === 'function') {
+        // console.log('sjdksd' + onError(this.cost, costLimit));
+        throw new GraphQLError(onError(this.cost, costLimit));
+      } else {
+        // console.log(onError(this.cost, costLimit));
         throw new GraphQLError(
-          `Actual cost is greater than set cost limit.`,
-          // `You are asking for ${this.cost} records. This is ${this.cost -
-          //   costLimit} greater than the permitted request`,
+          `You are asking for ${this.cost} records. This is ${this.cost -
+            costLimit} greater than the permitted request`,
         );
       }
-    } else if (typeof this.config.onSuccess === 'function') {
-      console.log(this.config.onSuccess(this.cost));
+    } else {
+      if (typeof onSuccess === 'function') {
+        console.log(onSuccess(this.cost));
+      }
     }
   }
 
