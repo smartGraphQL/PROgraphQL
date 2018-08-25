@@ -1,6 +1,7 @@
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const mongoose = require('mongoose');
+const { GraphQLError } = require('graphql');
 
 const app = express();
 const schema = require('./schema/schema.js');
@@ -13,14 +14,18 @@ mongoose.connection.once('open', () => {
 });
 
 const ruleCost = {
-  costLimit: 30,
+  costLimit: 10,
   onSuccess: cost => `Complete, query cost is ${cost}`,
-  onError: (cost, costLimit) => `Error: Cost is ${cost} but cost limit is ${costLimit}`,
+  onError: (cost, setCostLimit) => {
+    throw new GraphQLError(`Current cost is ${cost} but max cost is ${setCostLimit}`);
+  },
 };
 const ruleDepth = {
-  depthLimit: 10,
+  depthLimit: 2,
   onSuccess: depth => `Complete, query depth is ${depth}`,
-  onError: (depth, maximumDepth) => `Error: Current depth is ${depth} but max depth is ${maximumDepth}`,
+  onError: (depth, maximumDepth) => {
+    throw new GraphQLError(`Current depth is ${depth} but max depth is ${maximumDepth}`);
+  },
 };
 app.use(
   '/graphql',

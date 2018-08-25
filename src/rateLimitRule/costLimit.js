@@ -42,48 +42,27 @@ class CostLimitComplexity {
       enter: this.onOperationDefinitionEnter,
       leave: this.onOperationDefinitionLeave,
     };
+    this.FragmentDefinition = {
+      enter: this.onFragmentDefinitionEnter,
+      leave: this.onFragmentDefinitionLeave,
+    };
   }
 
   onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
     this.calculateCost(operationNode);
   }
 
-  onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
+  onFragmentDefinitionEnter(operationNode: FragmentDefinitionNode) {
     this.calculateCost(operationNode);
   }
 
-  updateArgument(node: ArgumentNode): void {
-    console.log(node.kind);
+  onFragmentDefinitionLeave(operationNode: FragmentDefinitionNode) {
+    console.log('EXIT FRAGMENT DEFINITION NODE');
+    return this.validateQuery();
   }
 
-  updateArgumentArray(addConstant: boolean, node?: FieldNode): void {
-    if (addConstant) {
-      this.argsArray.push(1);
-      return;
-    }
-    if (typeof node !== 'undefined' && node.arguments) {
-      node.arguments.forEach(argNode => {
-        if (argNode.name === 'first' || 'last') {
-          if (argNode.value.kind === 'IntValue') {
-            let argValue = Number(argNode.value.value);
-            isNaN(argValue) ? '' : this.argsArray.push(argValue);
-          }
-        }
-      });
-    }
-  }
-
-  queryFirstIteration(node: FieldNode): void {
-    this.cost += 1;
-    if (node.arguments) this.updateArgumentArray(false, node);
-    else this.updateArgumentArray(true);
-    this.calculateCost(node);
-  }
-
-  calculateCost(
-    node: OperationDefinitionNode | FieldNode | FragmentSpreadNode | InlineFragmentNode,
-  ): void {
-    if (node.kind === 'FragmentSpread') return;
+  calculateCost(node: OperationDefinitionNode | FieldNode | FragmentDefinitionNode): void {
+    console.log('*** CURRENT NODE \n', node);
     if (node.selectionSet) {
       node.selectionSet.selections.forEach(child => {
         if (child.kind === 'Field') {
@@ -108,21 +87,18 @@ class CostLimitComplexity {
         }
       });
     }
+    console.log('******THIS COST', this.cost);
   }
 
   validateQuery(): void | GraphQLError {
     // const { costLimit, onSuccess, onError } = this.config;
 
-    if (costLimit < this.cost) {
-      if (typeof onError === 'function') {
-        // console.log('sjdksd' + onError(this.cost, costLimit));
-        throw new GraphQLError(onError(this.cost, costLimit));
+    if (this.config.costLimit < this.cost) {
+      // console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
+      if (typeof this.config.onError === 'function') {
+        this.config.onError(this.cost, this.config.costLimit);
       } else {
-        // console.log(onError(this.cost, costLimit));
-        throw new GraphQLError(
-          `You are asking for ${this.cost} records. This is ${this.cost -
-            costLimit} greater than the permitted request`,
-        );
+        throw new GraphQLError(`Actual cost is greater than set cost limit.`);
       }
     } else {
       if (typeof onSuccess === 'function') {
@@ -132,7 +108,6 @@ class CostLimitComplexity {
   }
 
   onOperationDefinitionLeave() {
-    // console.log(this.config);
     return this.validateQuery();
   }
 }

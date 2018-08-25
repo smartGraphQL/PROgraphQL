@@ -22,6 +22,10 @@ var CostLimitComplexity = function () {
       enter: this.onOperationDefinitionEnter,
       leave: this.onOperationDefinitionLeave
     };
+    this.FragmentDefinition = {
+      enter: this.onFragmentDefinitionEnter,
+      leave: this.onFragmentDefinitionLeave
+    };
   }
 
   _createClass(CostLimitComplexity, [{
@@ -30,6 +34,7 @@ var CostLimitComplexity = function () {
       this.calculateCost(operationNode);
     }
   }, {
+<<<<<<< HEAD
     key: 'onOperationDefinitionEnter',
     value: function onOperationDefinitionEnter(operationNode) {
       this.calculateCost(operationNode);
@@ -72,6 +77,24 @@ var CostLimitComplexity = function () {
       var _this2 = this;
 
       if (node.kind === 'FragmentSpread') return;
+=======
+    key: 'onFragmentDefinitionEnter',
+    value: function onFragmentDefinitionEnter(operationNode) {
+      this.calculateCost(operationNode);
+    }
+  }, {
+    key: 'onFragmentDefinitionLeave',
+    value: function onFragmentDefinitionLeave(operationNode) {
+      console.log('EXIT FRAGMENT DEFINITION NODE');
+      return this.validateQuery();
+    }
+  }, {
+    key: 'calculateCost',
+    value: function calculateCost(node) {
+      var _this = this;
+
+      console.log('*** CURRENT NODE \n', node);
+>>>>>>> b897ec385320cc64b53103466575db34f6ac62c8
       if (node.selectionSet) {
         node.selectionSet.selections.forEach(function (child) {
           if (child.kind === 'Field') {
@@ -96,12 +119,14 @@ var CostLimitComplexity = function () {
           }
         });
       }
+      console.log('******THIS COST', this.cost);
     }
   }, {
     key: 'validateQuery',
     value: function validateQuery() {
       // const { costLimit, onSuccess, onError } = this.config;
 
+<<<<<<< HEAD
       if (costLimit < this.cost) {
         if (typeof onError === 'function') {
           // console.log('sjdksd' + onError(this.cost, costLimit));
@@ -113,13 +138,24 @@ var CostLimitComplexity = function () {
       } else {
         if (typeof onSuccess === 'function') {
           console.log(onSuccess(this.cost));
+=======
+      if (this.config.costLimit < this.cost) {
+        // console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
+        if (typeof this.config.onError === 'function') {
+          this.config.onError(this.cost, this.config.costLimit);
+        } else {
+          throw new GraphQLError('Actual cost is greater than set cost limit.');
+>>>>>>> b897ec385320cc64b53103466575db34f6ac62c8
         }
       }
     }
   }, {
     key: 'onOperationDefinitionLeave',
     value: function onOperationDefinitionLeave() {
+<<<<<<< HEAD
       // console.log(this.config);
+=======
+>>>>>>> b897ec385320cc64b53103466575db34f6ac62c8
       return this.validateQuery();
     }
   }]);

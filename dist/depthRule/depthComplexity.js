@@ -81,7 +81,7 @@ var DepthComplexity = function () {
           onError = _config.onError;
 
       if (depthLimit < this.actualDepth) {
-        if (typeof onError === 'function') throw new GraphQLError(onError(this.actualDepth, this.clientMax));else throw new GraphQLError('Query is to complex, MAX DEPTH is ' + this.clientMax + ', Current DEPTH is ' + this.actualDepth);
+        if (typeof onError === 'function') throw new GraphQLError(onError(this.actualDepth, depthLimit));else throw new GraphQLError('Query is to complex, MAX DEPTH is ' + this.clientMax + ', Current DEPTH is ' + this.actualDepth);
       } else if (typeof onSuccess === 'function') {
         console.log(onSuccess(this.actualDepth));
       }
