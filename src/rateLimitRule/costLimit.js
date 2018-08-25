@@ -57,12 +57,46 @@ class CostLimitComplexity {
   }
 
   onFragmentDefinitionLeave(operationNode: FragmentDefinitionNode) {
-    console.log('EXIT FRAGMENT DEFINITION NODE');
     return this.validateQuery();
   }
 
-  calculateCost(node: OperationDefinitionNode | FieldNode | FragmentDefinitionNode): void {
-    console.log('*** CURRENT NODE \n', node);
+  updateArgument(node: ArgumentNode): void {
+    console.log(node.kind);
+  }
+
+  updateArgumentArray(addConstant: boolean, node?: FieldNode): void {
+    if (addConstant) {
+      this.argsArray.push(1);
+      return;
+    }
+    if (typeof node !== 'undefined' && node.arguments) {
+      node.arguments.forEach(argNode => {
+        if (argNode.name === 'first' || 'last') {
+          if (argNode.value.kind === 'IntValue') {
+            let argValue = Number(argNode.value.value);
+            isNaN(argValue) ? '' : this.argsArray.push(argValue);
+          }
+        }
+      });
+    }
+  }
+
+  queryFirstIteration(node: FieldNode): void {
+    this.cost += 1;
+    if (node.arguments) this.updateArgumentArray(false, node);
+    else this.updateArgumentArray(true);
+    this.calculateCost(node);
+  }
+
+  calculateCost(
+    node:
+      | OperationDefinitionNode
+      | FieldNode
+      | FragmentSpreadNode
+      | InlineFragmentNode
+      | FragmentDefinitionNode,
+  ): void {
+    if (node.kind === 'FragmentSpread') return;
     if (node.selectionSet) {
       node.selectionSet.selections.forEach(child => {
         if (child.kind === 'Field') {
@@ -87,18 +121,19 @@ class CostLimitComplexity {
         }
       });
     }
-    console.log('******THIS COST', this.cost);
   }
 
   validateQuery(): void | GraphQLError {
-    // const { costLimit, onSuccess, onError } = this.config;
+    let { costLimit, onSuccess, onError } = this.config;
 
-    if (this.config.costLimit < this.cost) {
-      // console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
-      if (typeof this.config.onError === 'function') {
-        this.config.onError(this.cost, this.config.costLimit);
+    if (costLimit < this.cost) {
+      if (typeof onError === 'function') {
+        throw new GraphQLError(onError(this.cost, costLimit));
       } else {
-        throw new GraphQLError(`Actual cost is greater than set cost limit.`);
+        throw new GraphQLError(
+          `You are asking for ${this.cost} records. This is ${this.cost -
+            costLimit} greater than the permitted request`,
+        );
       }
     } else {
       if (typeof onSuccess === 'function') {
