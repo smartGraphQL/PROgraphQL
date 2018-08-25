@@ -14,13 +14,13 @@ mongoose.connection.once('open', () => {
 });
 
 const ruleCost = {
-  costLimit: 10,
+  costLimit: 5,
   onSuccess: cost => `Complete, query cost is ${cost}`,
   onError: (cost, setCostLimit) => { throw new GraphQLError (`Current cost is ${cost} but max cost is ${setCostLimit}`)} 
 };
 
 const ruleDepth = {
-  depthLimit: 2,
+  depthLimit: 15,
   onSuccess: depth => `Complete, query depth is ${depth}`,
   onError: (depth, maximumDepth) => { throw new GraphQLError(`Current depth is ${depth} but max depth is ${maximumDepth}`)}
 };

@@ -106,7 +106,7 @@ class DepthComplexity {
           }`,
         );
     } else if (typeof onSuccess === 'function') {
-      console.log(onSuccess(this.actualDepth));
+      // console.log(onSuccess(this.actualDepth));
     }
   }
   onOperationDefinitionLeave(): GraphQLError | void {
