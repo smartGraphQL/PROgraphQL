@@ -36,15 +36,29 @@ class CostLimitComplexity {
       enter: this.onOperationDefinitionEnter,
       leave: this.onOperationDefinitionLeave,
     };
+    this.FragmentDefinition = {
+      enter: this.onFragmentDefinitionEnter,
+      leave: this.onFragmentDefinitionLeave,
+    };
   }
 
   onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
     this.calculateCost(operationNode);
   }
 
-  calculateCost(node: OperationDefinitionNode | FieldNode): void {
-    // console.log('iteration ', iteration);
+  onFragmentDefinitionEnter(operationNode: FragmentDefinitionNode) {
+    this.calculateCost(operationNode);
+  }
 
+  onFragmentDefinitionLeave(operationNode: FragmentDefinitionNode) {
+    console.log('EXIT FRAGMENT DEFINITION NODE');
+    return this.validateQuery();
+
+
+  }
+
+  calculateCost(node: OperationDefinitionNode | FieldNode | FragmentDefinitionNode): void {
+    console.log('*** CURRENT NODE \n', node);
     if (node.selectionSet) {
       node.selectionSet.selections.forEach(childNode => {
         if (this.argsArray.length === 0) {
@@ -69,22 +83,20 @@ class CostLimitComplexity {
         }
       });
     }
+    console.log('******THIS COST', this.cost);
   }
 
   validateQuery(): void | GraphQLError {
     // const { costLimit, onSuccess, onError } = this.config;
 
     if (this.config.costLimit < this.cost) {
-      console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
-      if (typeof onError === 'function')
-        throw new GraphQLError('ERRORSROS IS FUNCTION CONDITOINAL');
+      // console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
+      if (typeof this.config.onError === 'function') {
+        this.config.onError(this.cost, this.config.costLimit);
+      }
       else {
-        console.log('ERRROROSRO');
-        // console.log(this.config.onError(this.cost, this.config.costLimit));
         throw new GraphQLError(
-          `Actual cost is greater than set cost limit.`,
-          // `You are asking for ${this.cost} records. This is ${this.cost -
-          //   costLimit} greater than the permitted request`,
+          `Actual cost is greater than set cost limit.`
         );
       }
     } else if (typeof this.config.onSuccess === 'function') {
@@ -93,9 +105,10 @@ class CostLimitComplexity {
   }
 
   onOperationDefinitionLeave() {
-    // console.log(this.config);
     return this.validateQuery();
   }
+
+ 
 }
 
 module.exports = CostLimitComplexity;

@@ -21,6 +21,10 @@ var CostLimitComplexity = function () {
       enter: this.onOperationDefinitionEnter,
       leave: this.onOperationDefinitionLeave
     };
+    this.FragmentDefinition = {
+      enter: this.onFragmentDefinitionEnter,
+      leave: this.onFragmentDefinitionLeave
+    };
   }
 
   _createClass(CostLimitComplexity, [{
@@ -29,12 +33,22 @@ var CostLimitComplexity = function () {
       this.calculateCost(operationNode);
     }
   }, {
+    key: 'onFragmentDefinitionEnter',
+    value: function onFragmentDefinitionEnter(operationNode) {
+      this.calculateCost(operationNode);
+    }
+  }, {
+    key: 'onFragmentDefinitionLeave',
+    value: function onFragmentDefinitionLeave(operationNode) {
+      console.log('EXIT FRAGMENT DEFINITION NODE');
+      return this.validateQuery();
+    }
+  }, {
     key: 'calculateCost',
     value: function calculateCost(node) {
       var _this = this;
 
-      // console.log('iteration ', iteration);
-
+      console.log('*** CURRENT NODE \n', node);
       if (node.selectionSet) {
         node.selectionSet.selections.forEach(function (childNode) {
           if (_this.argsArray.length === 0) {
@@ -58,6 +72,7 @@ var CostLimitComplexity = function () {
           }
         });
       }
+      console.log('******THIS COST', this.cost);
     }
   }, {
     key: 'validateQuery',
@@ -65,8 +80,10 @@ var CostLimitComplexity = function () {
       // const { costLimit, onSuccess, onError } = this.config;
 
       if (this.config.costLimit < this.cost) {
-        if (typeof onError === 'function') throw new GraphQLError(onError(this.config.cost, this.costLimit));else {
-          console.log(onError(this.cost, this.config.costLimit));
+        // console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
+        if (typeof this.config.onError === 'function') {
+          this.config.onError(this.cost, this.config.costLimit);
+        } else {
           throw new GraphQLError('Actual cost is greater than set cost limit.');
         }
       } else if (typeof this.config.onSuccess === 'function') {
@@ -76,7 +93,6 @@ var CostLimitComplexity = function () {
   }, {
     key: 'onOperationDefinitionLeave',
     value: function onOperationDefinitionLeave() {
-      console.log(this.config);
       return this.validateQuery();
     }
   }]);

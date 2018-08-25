@@ -98,10 +98,10 @@ class DepthComplexity {
     let { depthLimit, onSuccess, onError } = this.config;
     if (depthLimit < this.actualDepth) {
       if (typeof onError === 'function')
-        throw new GraphQLError(onError(this.actualDepth, this.clientMax));
+        throw new GraphQLError(onError(this.actualDepth, depthLimit));
       else
         throw new GraphQLError(
-          `Query is to complex, MAX DEPTH is ${this.clientMax}, Current DEPTH is ${
+          `Query is to complex, MAX DEPTH is ${depthLimit}, Current DEPTH is ${
             this.actualDepth
           }`,
         );
