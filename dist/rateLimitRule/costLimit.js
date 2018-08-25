@@ -34,7 +34,7 @@ var CostLimitComplexity = function () {
       var _this = this;
 
       // console.log('iteration ', iteration);
-
+      console.log(node.selectionSet);
       if (node.selectionSet) {
         node.selectionSet.selections.forEach(function (childNode) {
           if (_this.argsArray.length === 0) {
@@ -65,8 +65,10 @@ var CostLimitComplexity = function () {
       // const { costLimit, onSuccess, onError } = this.config;
 
       if (this.config.costLimit < this.cost) {
-        if (typeof onError === 'function') throw new GraphQLError(onError(this.config.cost, this.costLimit));else {
-          console.log(onError(this.cost, this.config.costLimit));
+        console.log('LIMIT', this.config.costLimit, '\nACTUAL COST', this.cost);
+        if (typeof onError === 'function') throw new GraphQLError('ERRORSROS IS FUNCTION CONDITOINAL');else {
+          console.log('ERRROROSRO');
+          // console.log(this.config.onError(this.cost, this.config.costLimit));
           throw new GraphQLError('Actual cost is greater than set cost limit.');
         }
       } else if (typeof this.config.onSuccess === 'function') {
@@ -76,7 +78,7 @@ var CostLimitComplexity = function () {
   }, {
     key: 'onOperationDefinitionLeave',
     value: function onOperationDefinitionLeave() {
-      console.log(this.config);
+      // console.log(this.config);
       return this.validateQuery();
     }
   }]);

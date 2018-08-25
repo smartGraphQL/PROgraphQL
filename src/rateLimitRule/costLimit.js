@@ -44,7 +44,7 @@ class CostLimitComplexity {
 
   calculateCost(node: OperationDefinitionNode | FieldNode): void {
     // console.log('iteration ', iteration);
-
+    console.log(node.selectionSet);
     if (node.selectionSet) {
       node.selectionSet.selections.forEach(childNode => {
         if (this.argsArray.length === 0) {
