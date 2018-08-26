@@ -4,9 +4,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var graphql = require('graphql');
-
-var GraphQLError = graphql.GraphQLError;
+var _require = require('graphql'),
+    GraphQLError = _require.GraphQLError;
 
 var DepthComplexity = function () {
   function DepthComplexity(context, config) {
@@ -41,6 +40,16 @@ var DepthComplexity = function () {
       this.calculateDepth(operationNode);
     }
   }, {
+    key: 'onOperationDefinitionLeave',
+    value: function onOperationDefinitionLeave() {
+      this.validateQuery();
+    }
+  }, {
+    key: 'onFragmentDefinitionLeave',
+    value: function onFragmentDefinitionLeave() {
+      this.validateQuery();
+    }
+  }, {
     key: 'calculateDepth',
     value: function calculateDepth(node) {
       var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -50,17 +59,11 @@ var DepthComplexity = function () {
       var isFragment = arguments[2];
       var nodeArray = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
 
-      if (!node.selectionSet) {
-        return;
-      } else {
+      if (!node.selectionSet) return;else {
         nodeArray = nodeArray.concat(node.selectionSet.selections);
         depth += 1;
         nodeArray.forEach(function (childNode) {
-          if (isFragment) {
-            _this.calculateDepth(childNode, depth, isFragment);
-          } else {
-            _this.calculateDepth(childNode, depth);
-          }
+          if (isFragment) _this.calculateDepth(childNode, depth, isFragment);else _this.calculateDepth(childNode, depth);
         });
       }
 
@@ -79,22 +82,12 @@ var DepthComplexity = function () {
           depthLimit = _config.depthLimit,
           onSuccess = _config.onSuccess,
           onError = _config.onError;
+      var actualDepth = this.actualDepth;
 
-      if (depthLimit < this.actualDepth) {
-        if (typeof onError === 'function') throw new GraphQLError(onError(this.actualDepth, depthLimit));else throw new GraphQLError('Query is to complex, MAX DEPTH is ' + depthLimit + ', Current DEPTH is ' + this.actualDepth);
-      } else if (typeof onSuccess === 'function') {
-        // console.log(onSuccess(this.actualDepth));
-      }
-    }
-  }, {
-    key: 'onOperationDefinitionLeave',
-    value: function onOperationDefinitionLeave() {
-      this.validateQuery();
-    }
-  }, {
-    key: 'onFragmentDefinitionLeave',
-    value: function onFragmentDefinitionLeave() {
-      this.validateQuery();
+
+      if (depthLimit < actualDepth) {
+        if (onError) throw new GraphQLError(onError(actualDepth, depthLimit));else throw new GraphQLError('Current query depth of ' + actualDepth + ' exceeds set depth limit of ' + depthLimit);
+      } else if (onSuccess) onSuccess(actualDepth);
     }
   }]);
 

@@ -1,4 +1,4 @@
-const graphql = require('graphql');
+const { GraphQLError } = require('graphql');
 
 import type {
   ValidationContext,
@@ -8,8 +8,6 @@ import type {
   FragmentSpreadNode,
   InlineFragmentNode,
 } from 'graphql';
-
-const { GraphQLError } = graphql;
 
 export type DepthComplexityOptions = {
   depthLimit: number,
@@ -51,12 +49,20 @@ class DepthComplexity {
   }
 
   onFragmentDefinitionEnter(fragment) {
-    let isFragment = true;
+    const isFragment = true;
     this.calculateDepth(fragment, -1, isFragment);
   }
 
   onOperationDefinitionEnter(operationNode) {
     this.calculateDepth(operationNode);
+  }
+
+  onOperationDefinitionLeave(): GraphQLError | void {
+    this.validateQuery();
+  }
+
+  onFragmentDefinitionLeave() {
+    this.validateQuery();
   }
 
   calculateDepth(
@@ -91,22 +97,16 @@ class DepthComplexity {
   }
 
   validateQuery(): void {
-    const { depthLimit, onSuccess, onError, actualDepth } = this.config;
-    if (depthLimit < this.actualDepth) {
-      if (typeof onError === 'function') throw new GraphQLError(onError(actualDepth, depthLimit));
+    const { depthLimit, onSuccess, onError } = this.config;
+    const { actualDepth } = this;
+
+    if (depthLimit < actualDepth) {
+      if (onError) throw new GraphQLError(onError(actualDepth, depthLimit));
       else
         throw new GraphQLError(
-          `Query is too complex, Max Depth is set to ${depthLimit}, Current DEPTH is ${actualDepth}`,
+          `Current query depth of ${actualDepth} exceeds set depth limit of ${depthLimit}`,
         );
-    } else if (typeof onSuccess === 'function') console.log(onSuccess(this.actualDepth));
-  }
-
-  onOperationDefinitionLeave(): GraphQLError | void {
-    this.validateQuery();
-  }
-
-  onFragmentDefinitionLeave() {
-    this.validateQuery();
+    } else if (onSuccess) onSuccess(actualDepth);
   }
 }
 
