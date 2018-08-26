@@ -71,17 +71,13 @@ class DepthComplexity {
       | InlineFragmentNode,
     > = [],
   ) {
-    if (!node.selectionSet) {
-      return;
-    } else {
+    if (!node.selectionSet) return;
+    else {
       nodeArray = nodeArray.concat(node.selectionSet.selections);
       depth += 1;
       nodeArray.forEach(childNode => {
-        if (isFragment) {
-          this.calculateDepth(childNode, depth, isFragment);
-        } else {
-          this.calculateDepth(childNode, depth);
-        }
+        if (isFragment) this.calculateDepth(childNode, depth, isFragment);
+        else this.calculateDepth(childNode, depth);
       });
     }
 
@@ -95,20 +91,16 @@ class DepthComplexity {
   }
 
   validateQuery(): void {
-    let { depthLimit, onSuccess, onError } = this.config;
+    const { depthLimit, onSuccess, onError, actualDepth } = this.config;
     if (depthLimit < this.actualDepth) {
-      if (typeof onError === 'function')
-        throw new GraphQLError(onError(this.actualDepth, depthLimit));
+      if (typeof onError === 'function') throw new GraphQLError(onError(actualDepth, depthLimit));
       else
         throw new GraphQLError(
-          `Query is to complex, MAX DEPTH is ${depthLimit}, Current DEPTH is ${
-            this.actualDepth
-          }`,
+          `Query is too complex, Max Depth is set to ${depthLimit}, Current DEPTH is ${actualDepth}`,
         );
-    } else if (typeof onSuccess === 'function') {
-      // console.log(onSuccess(this.actualDepth));
-    }
+    } else if (typeof onSuccess === 'function') console.log(onSuccess(this.actualDepth));
   }
+
   onOperationDefinitionLeave(): GraphQLError | void {
     this.validateQuery();
   }

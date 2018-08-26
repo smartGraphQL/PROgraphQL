@@ -52,11 +52,15 @@ class CostLimitComplexity {
     this.calculateCost(operationNode);
   }
 
+  onOperationDefinitionLeave() {
+    return this.validateQuery();
+  }
+
   onFragmentDefinitionEnter(operationNode: FragmentDefinitionNode) {
     this.calculateCost(operationNode);
   }
 
-  onFragmentDefinitionLeave(operationNode: FragmentDefinitionNode) {
+  onFragmentDefinitionLeave() {
     return this.validateQuery();
   }
 
@@ -100,23 +104,16 @@ class CostLimitComplexity {
     if (node.selectionSet) {
       node.selectionSet.selections.forEach(child => {
         if (child.kind === 'Field') {
-          if (this.argsArray.length === 0) {
-            this.queryFirstIteration(child);
-          } else {
-            if (child.arguments && child.arguments.length > 0) {
-              this.cost += this.argsArray.reduce((product, num) => {
-                return (product *= num);
-              }, 1);
-              this.updateArgumentArray(false, child);
-              this.calculateCost(child);
-            } else if (child.arguments && child.arguments.length == 0 && child.selectionSet) {
-              this.cost += this.argsArray.reduce((product, num) => {
-                return (product *= num);
-              }, 1);
-              this.updateArgumentArray(true);
+          if (this.argsArray.length === 0) this.queryFirstIteration(child);
+          else if (child.arguments && child.arguments.length > 0) {
+            this.cost += this.argsArray.reduce((product, num) => product * num, 1);
+            this.updateArgumentArray(false, child);
+            this.calculateCost(child);
+          } else if (child.arguments && child.arguments.length == 0 && child.selectionSet) {
+            this.cost += this.argsArray.reduce((product, num) => product * num, 1);
+            this.updateArgumentArray(true);
 
-              this.calculateCost(child);
-            }
+            this.calculateCost(child);
           }
         }
       });
@@ -124,26 +121,16 @@ class CostLimitComplexity {
   }
 
   validateQuery(): void | GraphQLError {
-    let { costLimit, onSuccess, onError } = this.config;
+    const { costLimit, onSuccess, onError, cost } = this.config;
 
-    if (costLimit < this.cost) {
-      if (typeof onError === 'function') {
-        throw new GraphQLError(onError(this.cost, costLimit));
-      } else {
+    if (costLimit < cost) {
+      if (typeof onError === 'function') throw new GraphQLError(onError(cost, costLimit));
+      else
         throw new GraphQLError(
-          `You are asking for ${this.cost} records. This is ${this.cost -
+          `You are asking for ${cost} records. This is ${cost -
             costLimit} greater than the permitted request`,
         );
-      }
-    } else {
-      if (typeof onSuccess === 'function') {
-        console.log(onSuccess(this.cost));
-      }
-    }
-  }
-
-  onOperationDefinitionLeave() {
-    return this.validateQuery();
+    } else if (typeof onSuccess === 'function') console.log(onSuccess(cost));
   }
 }
 

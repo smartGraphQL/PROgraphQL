@@ -1,13 +1,16 @@
 const DepthComplexity = require('./depthComplexity');
 const { ValidationContext, GraphQLError } = require('graphql');
+
 import type { DepthComplexityOptions } from './depthComplexity';
 
 const depthComplexity = (rule: DepthComplexityOptions): Function => {
-  if (rule.depthLimit <= 0) {
-    throw new GraphQLError('Depth limit must be greater than 0');
-  }
+  if (rule.depthLimit <= 0) throw new GraphQLError('Depth limit must be greater than 0');
+
   return (context: ValidationContext): DepthComplexity => {
-    let result = new DepthComplexity((context: ValidationContext), (rule: DepthComplexityOptions));
+    const result = new DepthComplexity(
+      (context: ValidationContext),
+      (rule: DepthComplexityOptions),
+    );
     return result;
   };
 };
