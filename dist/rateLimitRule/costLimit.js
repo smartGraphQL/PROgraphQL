@@ -63,11 +63,9 @@ var CostLimitComplexity = function () {
 
       if (addConstant) this.argsArray.push(1);else if (typeof node !== 'undefined' && node.arguments) {
         node.arguments.forEach(function (argNode) {
-          if (argNode.name === 'first' || 'last') {
-            if (argNode.value.kind === 'IntValue') {
-              var argValue = Number(argNode.value.value);
-              isNaN(argValue) ? '' : _this.argsArray.push(argValue);
-            }
+          if ((argNode.name === 'first' || 'last') && argNode.value.kind === 'IntValue') {
+            var argValue = Number(argNode.value.value);
+            isNaN(argValue) ? '' : _this.argsArray.push(argValue);
           }
         });
       }

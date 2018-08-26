@@ -74,11 +74,9 @@ class CostLimitComplexity {
     if (addConstant) this.argsArray.push(1);
     else if (typeof node !== 'undefined' && node.arguments) {
       node.arguments.forEach(argNode => {
-        if (argNode.name === 'first' || 'last') {
-          if (argNode.value.kind === 'IntValue') {
-            let argValue = Number(argNode.value.value);
-            isNaN(argValue) ? '' : this.argsArray.push(argValue);
-          }
+        if ((argNode.name === 'first' || 'last') && argNode.value.kind === 'IntValue') {
+          const argValue = Number(argNode.value.value);
+          isNaN(argValue) ? '' : this.argsArray.push(argValue);
         }
       });
     }
