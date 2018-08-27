@@ -43,38 +43,48 @@ class DepthComplexity {
       leave: this.onOperationDefinitionLeave,
     };
 
-	onFragmentDefinitionEnter(fragment:FragmentDefinitionNode){
-		let isFragment = true;
-		this.calculateDepth(fragment,-1,isFragment);
-	}
+    this.FragmentDefinition = {
+      enter: this.onFragmentDefinitionEnter,
+      leave: this.onFragmentDefinitionLeave,
+    };
+  }
+  onFragmentDefinitionEnter(fragment: FragmentDefinitionNode) {
+    let isFragment = true;
+    this.calculateDepth(fragment, -1, isFragment);
+  }
 
-	onOperationDefinitionEnter(operationNode:OperationDefinitionNode){
-			this.calculateDepth(operationNode,0,false);
-	}
+  onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
+    this.calculateDepth(operationNode, 0, false);
+  }
 
-	calculateDepth(node: FieldNode | OperationDefinitionNode,
-			depth:number=0 , isFragment:boolean,
-			nodeArray:Array<FragmentDefinitionNode |OperationDefinitionNode|FieldNode|FragmentSpreadNode|InlineFragmentNode>=[]){
-		if(!node.selectionSet){
-			return ;
-		} else{
-			nodeArray = nodeArray.concat( node.selectionSet.selections);
-			depth +=1;
-			nodeArray.forEach(childNode=>{
-				  //console.log('FOREACH method ', depth)
-				if(isFragment){
-					this.calculateDepth(childNode,depth,isFragment);
-				}else{
-					this.calculateDepth(childNode,depth,false);
-				}
-			})
-		}
+  calculateDepth(
+    node: FieldNode | OperationDefinitionNode,
+    depth: number = 0,
+    isFragment: boolean,
+    nodeArray: Array<
+      | FragmentDefinitionNode
+      | OperationDefinitionNode
+      | FieldNode
+      | FragmentSpreadNode
+      | InlineFragmentNode,
+    > = [],
+  ) {
+    if (!node.selectionSet) return;
+    else {
+      nodeArray = nodeArray.concat(node.selectionSet.selections);
+      depth += 1;
+      nodeArray.forEach(childNode => {
+        if (isFragment) this.calculateDepth(childNode, depth, isFragment);
+        else this.calculateDepth(childNode, depth, false);
+      });
+    }
+  }
 
   onOperationDefinitionLeave(): GraphQLError | void {
     this.validateQuery();
   }
 
-  onFragmentDefinitionLeave() {
+  onFragmentDefinitionLeave(): GraphQLError | void {
     this.validateQuery();
   }
 

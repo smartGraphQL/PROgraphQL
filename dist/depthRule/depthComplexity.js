@@ -37,7 +37,25 @@ var DepthComplexity = function () {
   }, {
     key: 'onOperationDefinitionEnter',
     value: function onOperationDefinitionEnter(operationNode) {
-      this.calculateDepth(operationNode);
+      this.calculateDepth(operationNode, 0, false);
+    }
+  }, {
+    key: 'calculateDepth',
+    value: function calculateDepth(node) {
+      var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+      var _this = this;
+
+      var isFragment = arguments[2];
+      var nodeArray = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+
+      if (!node.selectionSet) return;else {
+        nodeArray = nodeArray.concat(node.selectionSet.selections);
+        depth += 1;
+        nodeArray.forEach(function (childNode) {
+          if (isFragment) _this.calculateDepth(childNode, depth, isFragment);else _this.calculateDepth(childNode, depth, false);
+        });
+      }
     }
   }, {
     key: 'onOperationDefinitionLeave',
@@ -54,7 +72,7 @@ var DepthComplexity = function () {
     value: function calculateDepth(node) {
       var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-      var _this = this;
+      var _this2 = this;
 
       var isFragment = arguments[2];
       var nodeArray = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
@@ -63,7 +81,7 @@ var DepthComplexity = function () {
         nodeArray = nodeArray.concat(node.selectionSet.selections);
         depth += 1;
         nodeArray.forEach(function (childNode) {
-          if (isFragment) _this.calculateDepth(childNode, depth, isFragment);else _this.calculateDepth(childNode, depth);
+          if (isFragment) _this2.calculateDepth(childNode, depth, isFragment);else _this2.calculateDepth(childNode, depth);
         });
       }
 
