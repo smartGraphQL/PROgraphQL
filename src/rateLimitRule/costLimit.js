@@ -35,8 +35,8 @@ class CostLimitComplexity {
     this.cost = 0;
     this.config = config;
 
-		this.fragments = {};
-		this.validateQueryOnFragment = true;
+    this.fragmentsList = {};
+    this.validateQueryOnFragment = true;
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -51,7 +51,7 @@ class CostLimitComplexity {
 
   onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
     // this.calculateCost(operationNode);
-		this.calculateCostVersion1(operationNode);
+    this.calculateCostVersion1(operationNode);
   }
 
   onOperationDefinitionLeave() {
@@ -59,72 +59,65 @@ class CostLimitComplexity {
   }
 
   onFragmentDefinitionEnter(fragment: FragmentDefinitionNode) {
-		let name = fragment.name.value;
-		if(this.fragments[name]){
-			let currentCost = this.fragments[name].currentCost;
-			let localArgs = this.fragments[name].localArgs;
-			this.calculateCostVersion1(fragment,localArgs,currentCost);
-		}
+    const fragName = fragment.name.value;
 
+    if (this.fragmentsList[fragName]) {
+      const { currentCost, localArgs } = this.fragmentsList[fragName];
+      this.calculateCostVersion1(fragment, localArgs, currentCost);
+    }
   }
 
   onFragmentDefinitionLeave() {
-		if(this.validateQueryOnFragment){
-			 this.validateQuery();
-		}
-
+    if (this.validateQueryOnFragment) this.validateQuery();
   }
 
-
-
-	calculateCostVersion1(node,localArgs=[],currentCost=1){
-		console.log('LOCAL ARGS ', localArgs);
-		console.log('CURRENT COSTTT ' , currentCost);
-		// if(node.kind === 'Field') console.log('field Name ', node.name.value);
+  calculateCostVersion1(node, localArgs = [], currentCost = 1) {
+    console.log('LOCAL ARGS ', localArgs);
+    console.log('CURRENT COSTTT ', currentCost);
+    // if(node.kind === 'Field') console.log('field Name ', node.name.value);
     this.cost = Math.max(this.cost, currentCost);
 
-		if(node.selectionSet){
-				let costArray = new Array(node.selectionSet.selections.length);
-			  node.selectionSet.selections.forEach((childNode, index)=>{
-				 	let	modifiedLocalArgs = [].concat(localArgs);
-				  let args = this.getArguments(childNode);
-					if(args && (args['first'] || args['last'])){
-						costArray[index] = this.updateCost(currentCost, modifiedLocalArgs);
-						this.updateLocalArgumentsArray(modifiedLocalArgs, args['first']||args['last']);
-					}
-				console.log('costArray[index]  ',  costArray[index])
-				this.calculateCostVersion1(childNode,modifiedLocalArgs,(costArray[index]||currentCost));
-		});
-		}else {
-			if(node.kind === 'FragmentSpread'){
-				this.fragments[node.name.value] = {currentCost, localArgs};
-			}
-			return;
-		}
+    if (node.selectionSet) {
+      const { selections } = node.selectionSet;
+      const costArray = new Array(selections.length);
 
-	}
+      selections.forEach((childNode, index) => {
+        const modifiedLocalArgs = [].concat(localArgs);
+        const args = this.getArguments(childNode) || null;
+        if (args && (args['first'] || args['last'])) {
+          costArray[index] = this.updateCost(currentCost, modifiedLocalArgs);
+          this.updateLocalArgsArr(modifiedLocalArgs, args['first'] || args['last']);
+        }
+        console.log('costArray[index]  ', costArray[index]);
+        this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
+      });
+    } else if (node.kind === 'FragmentSpread')
+      this.fragments[node.name.value] = { currentCost, localArgs };
+  }
 
-	getArguments(node){
-		let argObj;
-		if(node.arguments){
-			argObj = {};
-			node.arguments.forEach(nodeArg => argObj[nodeArg.name.value] = nodeArg.value.value);
-			return argObj;
-		}
-		return false;
-	}
+  getArguments(node) {
+    if (node.arguments) {
+      const argObj = {};
+      node.arguments.forEach(nodeArg => (argObj[nodeArg.name.value] = nodeArg.value.value));
+      return argObj;
+    }
+    return false;
+  }
 
-	updateCost(currentCost, array){
-		let product =  array.reduce((product, num) => product * num, 1);
-		 console.log('PRODUCTTT' , product);
-	 	return currentCost + product;
-	}
+  updateCost(currentCost, array) {
+    return (currentCost += array.reduce((product, num) => product * num, 1));
+    // return currentCost + product;
+  }
 
-	updateLocalArgumentsArray(array, argumentValue){
-		array.push(argumentValue);
-	}
+  updateLocalArgsArr(arr, argumentValue) {
+    arr.push(argumentValue);
+  }
 
+  /*
+  ** Old calculate cost functions 
+  **/
 
+  /*
   updateArgumentArray(addConstant: boolean, node?: FieldNode): void {
     if (addConstant) this.argsArray.push(1);
     else if (typeof node !== 'undefined' && node.arguments) {
@@ -135,7 +128,6 @@ class CostLimitComplexity {
         }
       });
     }
-
   }
 
   queryFirstIteration(node: FieldNode): void {
@@ -175,17 +167,20 @@ class CostLimitComplexity {
       });
     }
   }
+*/
 
   validateQuery(): void | GraphQLError {
     const { costLimit, onSuccess, onError } = this.config;
-    const { cost } = this;
-		console.log(`COSTTT ` , cost);
-    if (costLimit < cost) {
-			this.validateQueryOnFragment = false;
-      if (onError) throw new GraphQLError(onError(cost, costLimit));
+
+    console.log('COSTT', this.cost);
+    if (costLimit < this.cost) {
+      this.validateQueryOnFragment = false;
+      if (onError) throw new GraphQLError(onError(this.cost, costLimit));
       else
         throw new GraphQLError(
-          `The complexity score of current query is ${cost}, max complexity score is currently set to ${costLimit}.`,
+          `The complexity score of current query is ${
+            this.cost
+          }, max complexity score is currently set to ${costLimit}.`,
         );
     } else if (onSuccess) onSuccess(cost);
   }

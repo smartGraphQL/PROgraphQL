@@ -16,7 +16,7 @@ var CostLimitComplexity = function () {
     this.cost = 0;
     this.config = config;
 
-    this.fragments = {};
+    this.fragmentsList = {};
     this.validateQueryOnFragment = true;
 
     this.OperationDefinition = {
@@ -44,19 +44,20 @@ var CostLimitComplexity = function () {
   }, {
     key: 'onFragmentDefinitionEnter',
     value: function onFragmentDefinitionEnter(fragment) {
-      var name = fragment.name.value;
-      if (this.fragments[name]) {
-        var currentCost = this.fragments[name].currentCost;
-        var localArgs = this.fragments[name].localArgs;
+      var fragName = fragment.name.value;
+
+      if (this.fragmentsList[fragName]) {
+        var _fragmentsList$fragNa = this.fragmentsList[fragName],
+            currentCost = _fragmentsList$fragNa.currentCost,
+            localArgs = _fragmentsList$fragNa.localArgs;
+
         this.calculateCostVersion1(fragment, localArgs, currentCost);
       }
     }
   }, {
     key: 'onFragmentDefinitionLeave',
     value: function onFragmentDefinitionLeave() {
-      if (this.validateQueryOnFragment) {
-        this.validateQuery();
-      }
+      if (this.validateQueryOnFragment) this.validateQuery();
     }
   }, {
     key: 'calculateCostVersion1',
@@ -72,33 +73,27 @@ var CostLimitComplexity = function () {
       this.cost = Math.max(this.cost, currentCost);
 
       if (node.selectionSet) {
-        var costArray = new Array(node.selectionSet.selections.length);
-        node.selectionSet.selections.forEach(function (childNode, index) {
+        var selections = node.selectionSet.selections;
+
+        var costArray = new Array(selections.length);
+
+        selections.forEach(function (childNode, index) {
           var modifiedLocalArgs = [].concat(localArgs);
-          var args = _this.getArguments(childNode);
+          var args = _this.getArguments(childNode) || null;
           if (args && (args['first'] || args['last'])) {
             costArray[index] = _this.updateCost(currentCost, modifiedLocalArgs);
-            _this.updateLocalArgumentsArray(modifiedLocalArgs, args['first'] || args['last']);
+            _this.updateLocalArgsArr(modifiedLocalArgs, args['first'] || args['last']);
           }
-          // this.updateArgumentArrayVersion1(modifiedLocalArgs,childNode, costArray,index,currentCost);
           console.log('costArray[index]  ', costArray[index]);
           _this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
         });
-      } else {
-        // console.log('Reached leaf nodeee',node.kind);
-        console.log('IAM DONE');
-        if (node.kind === 'FragmentSpread') {
-          this.fragments[node.name.value] = { currentCost: currentCost, localArgs: localArgs };
-        }
-        return;
-      }
+      } else if (node.kind === 'FragmentSpread') this.fragments[node.name.value] = { currentCost: currentCost, localArgs: localArgs };
     }
   }, {
     key: 'getArguments',
     value: function getArguments(node) {
-      var argObj = void 0;
       if (node.arguments) {
-        argObj = {};
+        var argObj = {};
         node.arguments.forEach(function (nodeArg) {
           return argObj[nodeArg.name.value] = nodeArg.value.value;
         });
@@ -109,84 +104,67 @@ var CostLimitComplexity = function () {
   }, {
     key: 'updateCost',
     value: function updateCost(currentCost, array) {
-      var product = array.reduce(function (product, num) {
+      return currentCost += array.reduce(function (product, num) {
         return product * num;
       }, 1);
-      console.log('PRODUCTTT', product);
-      return currentCost + product;
+      // return currentCost + product;
     }
   }, {
-    key: 'updateLocalArgumentsArray',
-    value: function updateLocalArgumentsArray(array, argumentValue) {
-      array.push(argumentValue);
+    key: 'updateLocalArgsArr',
+    value: function updateLocalArgsArr(arr, argumentValue) {
+      arr.push(argumentValue);
     }
-  }, {
-    key: 'updateArgumentArrayVersion1',
-    value: function updateArgumentArrayVersion1(array, node, costArray, index, currentCost) {
-      if (node.arguments) {
-        node.arguments.forEach(function (argNode) {
-          if ((argNode.name.value === 'first' || argNode.name.value === 'last') && argNode.value.kind === 'IntValue') {
 
-            console.log('argNode name ', argNode.name);
-            var argValue = Number(argNode.value.value);
-            isNaN(argValue) ? '' : array.push(argValue);
-          }
-        });
-      }
+    /*
+    ** Old calculate cost functions 
+    **/
 
-      console.log(array);
-    }
-  }, {
-    key: 'updateArgumentArray',
-    value: function updateArgumentArray(addConstant, node) {
-      var _this2 = this;
-
-      if (addConstant) this.argsArray.push(1);else if (typeof node !== 'undefined' && node.arguments) {
-        node.arguments.forEach(function (argNode) {
+    /*
+    updateArgumentArray(addConstant: boolean, node?: FieldNode): void {
+      if (addConstant) this.argsArray.push(1);
+      else if (typeof node !== 'undefined' && node.arguments) {
+        node.arguments.forEach(argNode => {
           if ((argNode.name === 'first' || 'last') && argNode.value.kind === 'IntValue') {
-            var argValue = Number(argNode.value.value);
-            isNaN(argValue) ? '' : _this2.argsArray.push(argValue);
+            const argValue = Number(argNode.value.value);
+            isNaN(argValue) ? '' : this.argsArray.push(argValue);
           }
         });
       }
     }
-  }, {
-    key: 'queryFirstIteration',
-    value: function queryFirstIteration(node) {
+     queryFirstIteration(node: FieldNode): void {
       this.cost += 1;
-
-      if (node.arguments) this.updateArgumentArray(false, node);else this.updateArgumentArray(true);
-
-      this.calculateCost(node);
+       if (node.arguments) this.updateArgumentArray(false, node);
+      else this.updateArgumentArray(true);
+       this.calculateCost(node);
     }
-  }, {
-    key: 'calculateCost',
-    value: function calculateCost(node) {
-      var _this3 = this;
-
+     calculateCost(
+      node:
+        | OperationDefinitionNode
+        | FieldNode
+        | FragmentSpreadNode
+        | InlineFragmentNode
+        | FragmentDefinitionNode,
+    ): void {
       if (node.kind === 'FragmentSpread') return;
       if (node.selectionSet) {
-        node.selectionSet.selections.forEach(function (child) {
+        node.selectionSet.selections.forEach(child => {
           if (child.kind === 'Field') {
-            if (_this3.argsArray.length === 0) _this3.queryFirstIteration(child);else if (child.arguments && child.arguments.length > 0) {
-              _this3.cost += _this3.argsArray.reduce(function (product, num) {
-                return product * num;
-              }, 1);
-
-              _this3.updateArgumentArray(false, child);
-              _this3.calculateCost(child);
+            if (this.argsArray.length === 0) this.queryFirstIteration(child);
+            else if (child.arguments && child.arguments.length > 0) {
+              this.cost += this.argsArray.reduce((product, num) => product * num, 1);
+               this.updateArgumentArray(false, child);
+              this.calculateCost(child);
             } else if (child.arguments && child.arguments.length == 0 && child.selectionSet) {
-              _this3.cost += _this3.argsArray.reduce(function (product, num) {
-                return product * num;
-              }, 1);
-
-              _this3.updateArgumentArray(true);
-              _this3.calculateCost(child);
+              this.cost += this.argsArray.reduce((product, num) => product * num, 1);
+               this.updateArgumentArray(true);
+              this.calculateCost(child);
             }
           }
         });
       }
     }
+    */
+
   }, {
     key: 'validateQuery',
     value: function validateQuery() {
@@ -194,12 +172,12 @@ var CostLimitComplexity = function () {
           costLimit = _config.costLimit,
           onSuccess = _config.onSuccess,
           onError = _config.onError;
-      var cost = this.cost;
 
-      console.log('COSTTT ', cost);
-      if (costLimit < cost) {
+
+      console.log('COSTT', this.cost);
+      if (costLimit < this.cost) {
         this.validateQueryOnFragment = false;
-        if (onError) throw new GraphQLError(onError(cost, costLimit));else throw new GraphQLError('The complexity score of current query is ' + cost + ', max complexity score is currently set to ' + costLimit + '.');
+        if (onError) throw new GraphQLError(onError(this.cost, costLimit));else throw new GraphQLError('The complexity score of current query is ' + this.cost + ', max complexity score is currently set to ' + costLimit + '.');
       } else if (onSuccess) onSuccess(cost);
     }
   }]);
