@@ -156,9 +156,9 @@ describe('Query Complexity Analysis', () => {
       }
     `);
     const context = new ValidationContext(schema, ast, typeInfo);
-    const complexity2 = new CostLimitComplexity(context, { costLimit: 1 });
+    const complexity = new CostLimitComplexity(context, { costLimit: 1 });
     expect(() => {
-      visit(ast, visitWithTypeInfo(typeInfo, complexity2));
+      visit(ast, visitWithTypeInfo(typeInfo, complexity));
     }).toThrowError(GraphQLError);
   });
 
