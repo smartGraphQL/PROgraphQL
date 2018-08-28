@@ -55,7 +55,7 @@ ${maximumDepth}`,
 
 Depth is calculated by how nested the query is for example the following queries are incrementally increasing in depth from 1 to 3:
 
-```javascript
+```graphql
 {
   Author(id:1) {
     Name
