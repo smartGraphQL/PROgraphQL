@@ -10,7 +10,9 @@ Works with Express.js
 
 Install this package via npm 
 
+```
 npm install -s pro-graphql 
+```
 
 ## Usage
 
