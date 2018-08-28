@@ -1,4 +1,4 @@
-# PROgraphQL
+# Pro-graphQL
 
 ## GraphQL Query & Depth Complexity Analysis
 
