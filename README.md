@@ -53,7 +53,7 @@ ${maximumDepth}`,
 
 ## Depth Calculation
 
-Depth is calculated by how nested the query is for example the following queries are incrementally increasing:
+Depth is calculated by how nested the query is. For example the following queries are incrementally increasing:
 
 ```graphql
 //depth 1
@@ -69,6 +69,7 @@ query{
     Name
     Books{
        Name
+    }
   }
 }
 
@@ -83,7 +84,7 @@ query{
   }
 }
 ```
-Inline Fragments and Fragments will not cause the query to increase for example in both the following case the query depth will remain 1: 
+Inline Fragments and Fragments will not cause the query depth to increase. For example in both the following cases the query depth will remain 1: 
 
 ```graphql
 //Inline Fragment
