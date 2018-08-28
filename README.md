@@ -1,18 +1,18 @@
 # PROgraphQL
 
-##GraphQL Query & Depth Complexity Analysis
+## GraphQL Query & Depth Complexity Analysis
 
 The Pro-GraphQL library enables users to limit the depth and complexity of queries to their GraphQL server which in turn prevent resource exhaustion and DOS attacks. 
 
 Works with Express.js
 
-##Installation
+## Installation
 
 Install this package via npm 
 
 npm install -s pro-graphql 
 
-##Usage
+## Usage
 
 Create rule for Cost Complexity 
 
@@ -49,7 +49,7 @@ ${maximumDepth}`,
 };
 ```
 
-##Depth Calculation
+## Depth Calculation
 
 Depth is calculated by how nested the query is for example the following queries are incrementally increasing in depth from 1 to 3:
 
@@ -126,7 +126,7 @@ Cyclical Queries can cause servers to crash by being nested to a large amount, a
 }
 ```
 
-##Cost Calculation
+## Cost Calculation
 
 Cost is calculated based on the number of times a resolve function makes a connection to the database. For example:
 
@@ -155,7 +155,7 @@ For the field songs inside genre, you will need to make one connection for the 5
 
 Total Cost is 5101
 
-##Usage with express-graphql
+## Usage with express-graphql
 
 Integrating the rules inside the validation rules will look like this, the limit will be manadatory, but the onSuccess and onError function are optional 
 
@@ -182,7 +182,7 @@ app.use(
 );
 ```
 
-##Credits
+## Credits
 
 Brought to you by Julia, Manjeet, Mark & Seth
 
