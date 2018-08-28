@@ -4,7 +4,7 @@
 
 The Pro-GraphQL library enables users to limit the depth and complexity of queries to their GraphQL server which in turn prevent resource exhaustion and DOS attacks. 
 
-Works with Express.js
+Compatible with Express.js
 
 ## Installation
 
@@ -190,5 +190,5 @@ app.use(
 
 ## Credits
 
-Brought to you by Julia, Manjeet, Mark & Seth
+Developed by Julia, Manjeet, Mark & Seth
 
