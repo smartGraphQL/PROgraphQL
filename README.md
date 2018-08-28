@@ -53,30 +53,33 @@ ${maximumDepth}`,
 
 ## Depth Calculation
 
-Depth is calculated by how nested the query is for example the following queries are incrementally increasing in depth from 1 to 3:
+Depth is calculated by how nested the query is for example the following queries are incrementally increasing:
 
 ```graphql
-{
+//depth 1
+query{
   Author(id:1) {
     Name
   }
 }
 
-{
+//depth 2
+query{
   Author(id:1) {
     Name
     Books{
-           Name
+       Name
   }
 }
 
-{
+//depth 3
+query{
   Author(id:1) {
     Name
     Books{
-        Name
-	Genre{
-	      Books 
+      Name
+      Genre{
+	 Books 
   }
 }
 ```
@@ -84,20 +87,20 @@ Inline Fragments and Fragments will not cause the query to increase for example 
 
 ```graphql
 //Inline Fragment
-{
+query{
   Author(id:1) {
     Name
-    …. on Books{
-	Name
+    ... on Books{
+	Pages
     }
   }
 }
 
 //Fragment
-{
+query{
   Author(id:1) {
     Name
-    …. books
+    ...books
   }
 }
 
@@ -111,7 +114,7 @@ fragment books on Author{
 Cyclical Queries can cause servers to crash by being nested to a large amount, and this is where setting a limit comes into play, by rejecting cyclical queries such as the following: 
 
 ```graphql
-{
+query{
   Artists{
     Name
     Songs{
