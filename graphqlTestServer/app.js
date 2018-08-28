@@ -14,23 +14,23 @@ mongoose.connection.once('open', () => {
 });
 
 const ruleCost = {
-	costLimit: 10000,
-	onSuccess: (cost) => (`Complete, query cost is ${cost}`),
-	onError: (cost, costLimit) => (`Error: Cost is ${cost} but cost limit is ${costLimit}`)
-}
+  costLimit: 10000,
+  onSuccess: cost => (`Complete, query cost is ${cost}`),
+  onError: (cost, costLimit) => (`Error: Cost is ${cost} but cost limit is ${costLimit}`),
+};
 const ruleDepth = {
-	depthLimit: 100,
-	onSuccess: (depth) => (`Complete, query depth is ${depth}`),
-	onError: (depth, maximumDepth) => (`Error: Current depth is ${depth} but max depth is ${maximumDepth}`)
-}
-app.use('/graphql', graphqlHTTP((req,res,gqlParams)=>({
-		schema,
-		graphiql: true,
-		validationRules:[
-		  depthComplexity(ruleDepth),
-		  costLimit(ruleCost)
-		]
-	})))
+  depthLimit: 100,
+  onSuccess: depth => (`Complete, query depth is ${depth}`),
+  onError: (depth, maximumDepth) => (`Error: Current depth is ${depth} but max depth is ${maximumDepth}`),
+};
+app.use('/graphql', graphqlHTTP((req, res, gqlParams) => ({
+  schema,
+  graphiql: true,
+  validationRules: [
+    depthComplexity(ruleDepth),
+    costLimit(ruleCost),
+  ],
+})));
 
 app.listen(5000, () => {
   console.log('listening to 5000');

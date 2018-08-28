@@ -44,9 +44,6 @@ var CostLimitComplexity = function () {
   }, {
     key: 'onFragmentDefinitionEnter',
     value: function onFragmentDefinitionEnter(fragment) {
-      // console.log('FRagmentttt',fragment);
-      console.log('FRAGMENTSS', this.fragments);
-      // this.calculateCost(operationNode);
       var name = fragment.name.value;
       if (this.fragments[name]) {
         var currentCost = this.fragments[name].currentCost;
@@ -76,23 +73,15 @@ var CostLimitComplexity = function () {
 
       if (node.selectionSet) {
         var costArray = new Array(node.selectionSet.selections.length);
-        // nodeArray = nodeArray.concat(node.selectionSet.selections);
         node.selectionSet.selections.forEach(function (childNode, index) {
           var modifiedLocalArgs = [].concat(localArgs);
-          console.log();
-          if (childNode.arguments && childNode.arguments.length > 0) {
-
-            console.log('ARGUMENTS name ' + childNode.arguments[0].name.value + ' value ' + childNode.arguments[0].value.value);
-
-            var product = localArgs.reduce(function (product, num) {
-              return product * num;
-            }, 1);
-
-            costArray[index] = currentCost + product;
-            console.log('costArrayyy ' + costArray[index] + ' index ' + index);
-            console.log('PRODUCTTT', product);
-            modifiedLocalArgs.push(Number(childNode.arguments[0].value.value));
+          var args = _this.getArguments(childNode);
+          if (args && (args['first'] || args['last'])) {
+            costArray[index] = _this.updateCost(currentCost, modifiedLocalArgs);
+            _this.updateLocalArgumentsArray(modifiedLocalArgs, args['first'] || args['last']);
           }
+          // this.updateArgumentArrayVersion1(modifiedLocalArgs,childNode, costArray,index,currentCost);
+          console.log('costArray[index]  ', costArray[index]);
           _this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
         });
       } else {
@@ -103,6 +92,49 @@ var CostLimitComplexity = function () {
         }
         return;
       }
+    }
+  }, {
+    key: 'getArguments',
+    value: function getArguments(node) {
+      var argObj = void 0;
+      if (node.arguments) {
+        argObj = {};
+        node.arguments.forEach(function (nodeArg) {
+          return argObj[nodeArg.name.value] = nodeArg.value.value;
+        });
+        return argObj;
+      }
+      return false;
+    }
+  }, {
+    key: 'updateCost',
+    value: function updateCost(currentCost, array) {
+      var product = array.reduce(function (product, num) {
+        return product * num;
+      }, 1);
+      console.log('PRODUCTTT', product);
+      return currentCost + product;
+    }
+  }, {
+    key: 'updateLocalArgumentsArray',
+    value: function updateLocalArgumentsArray(array, argumentValue) {
+      array.push(argumentValue);
+    }
+  }, {
+    key: 'updateArgumentArrayVersion1',
+    value: function updateArgumentArrayVersion1(array, node, costArray, index, currentCost) {
+      if (node.arguments) {
+        node.arguments.forEach(function (argNode) {
+          if ((argNode.name.value === 'first' || argNode.name.value === 'last') && argNode.value.kind === 'IntValue') {
+
+            console.log('argNode name ', argNode.name);
+            var argValue = Number(argNode.value.value);
+            isNaN(argValue) ? '' : array.push(argValue);
+          }
+        });
+      }
+
+      console.log(array);
     }
   }, {
     key: 'updateArgumentArray',

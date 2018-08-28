@@ -85,27 +85,17 @@ class CostLimitComplexity {
 
 		if(node.selectionSet){
 				let costArray = new Array(node.selectionSet.selections.length);
-			// nodeArray = nodeArray.concat(node.selectionSet.selections);
-		  node.selectionSet.selections.forEach((childNode, index)=>{
-			 let	modifiedLocalArgs = [].concat(localArgs);
-				console.log()
-				if(childNode.arguments && childNode.arguments.length > 0){
-
-
-						console.log(`ARGUMENTS name ${childNode.arguments[0].name.value} value ${childNode.arguments[0].value.value}`);
-
-						let product =  localArgs.reduce((product, num) => product * num, 1);
-
-						costArray[index]  = currentCost + product;
-						console.log(`costArrayyy ${costArray[index]} index ${index}`);
-						console.log('PRODUCTTT' , product);
-						modifiedLocalArgs.push(Number(childNode.arguments[0].value.value));
+			  node.selectionSet.selections.forEach((childNode, index)=>{
+				 	let	modifiedLocalArgs = [].concat(localArgs);
+				  let args = this.getArguments(childNode);
+					if(args && (args['first'] || args['last'])){
+						costArray[index] = this.updateCost(currentCost, modifiedLocalArgs);
+						this.updateLocalArgumentsArray(modifiedLocalArgs, args['first']||args['last']);
 					}
+				console.log('costArray[index]  ',  costArray[index])
 				this.calculateCostVersion1(childNode,modifiedLocalArgs,(costArray[index]||currentCost));
 		});
 		}else {
-			// console.log('Reached leaf nodeee',node.kind);
-			console.log('IAM DONE')
 			if(node.kind === 'FragmentSpread'){
 				this.fragments[node.name.value] = {currentCost, localArgs};
 			}
@@ -113,6 +103,27 @@ class CostLimitComplexity {
 		}
 
 	}
+
+	getArguments(node){
+		let argObj;
+		if(node.arguments){
+			argObj = {};
+			node.arguments.forEach(nodeArg => argObj[nodeArg.name.value] = nodeArg.value.value);
+			return argObj;
+		}
+		return false;
+	}
+
+	updateCost(currentCost, array){
+		let product =  array.reduce((product, num) => product * num, 1);
+		 console.log('PRODUCTTT' , product);
+	 	return currentCost + product;
+	}
+
+	updateLocalArgumentsArray(array, argumentValue){
+		array.push(argumentValue);
+	}
+
 
   updateArgumentArray(addConstant: boolean, node?: FieldNode): void {
     if (addConstant) this.argsArray.push(1);
@@ -124,6 +135,7 @@ class CostLimitComplexity {
         }
       });
     }
+
   }
 
   queryFirstIteration(node: FieldNode): void {
