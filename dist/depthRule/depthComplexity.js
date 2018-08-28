@@ -100,12 +100,11 @@ var DepthComplexity = function () {
           depthLimit = _config.depthLimit,
           onSuccess = _config.onSuccess,
           onError = _config.onError;
-      var actualDepth = this.actualDepth;
 
 
-      if (depthLimit < actualDepth) {
-        if (onError) throw new GraphQLError(onError(actualDepth, depthLimit));else throw new GraphQLError('Current query depth of ' + actualDepth + ' exceeds set depth limit of ' + depthLimit);
-      } else if (onSuccess) onSuccess(actualDepth);
+      if (depthLimit < this.actualDepth) {
+        if (onError) throw new GraphQLError(onError(this.actualDepth, depthLimit));else throw new GraphQLError('Current query depth of ' + this.actualDepth + ' exceeds set depth limit of ' + depthLimit);
+      } else if (onSuccess) onSuccess(this.actualDepth);
     }
   }]);
 

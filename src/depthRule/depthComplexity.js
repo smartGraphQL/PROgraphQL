@@ -121,15 +121,14 @@ class DepthComplexity {
 
   validateQuery(): void {
     const { depthLimit, onSuccess, onError } = this.config;
-    const { actualDepth } = this;
 
-    if (depthLimit < actualDepth) {
-      if (onError) throw new GraphQLError(onError(actualDepth, depthLimit));
+    if (depthLimit < this.actualDepth) {
+      if (onError) throw new GraphQLError(onError(this.actualDepth, depthLimit));
       else
         throw new GraphQLError(
-          `Current query depth of ${actualDepth} exceeds set depth limit of ${depthLimit}`,
+          `Current query depth of ${this.actualDepth} exceeds set depth limit of ${depthLimit}`,
         );
-    } else if (onSuccess) onSuccess(actualDepth);
+    } else if (onSuccess) onSuccess(this.actualDepth);
   }
 }
 
