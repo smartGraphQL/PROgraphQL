@@ -2,9 +2,9 @@
 
 ## GraphQL Query & Depth Complexity Analysis
 
-The Pro-GraphQL library enables users to limit the depth and complexity of queries to their GraphQL server which in turn prevent resource exhaustion and DOS attacks. 
+The Pro-GraphQL library enables users to limit the depth and complexity of queries to their GraphQL server, preventing resource exhaustion.
 
-Compatible with Express.js
+Compatible with Express and Apollo-Server validation rules.
 
 ## Installation
 
@@ -16,37 +16,37 @@ npm install -s pro-graphql
 
 ## Usage
 
-Create rule for Cost Complexity 
+Set a limit for Cost Complexity by creating a object with the following properties. 
 
 ```javascript
 const ruleCost = {
 
-  //All queries with this cost or above will be rejected and throw an error
-  costLimit: 10000,
+  // All queries with this cost or above will be rejected and throw an error
+  costLimit: 500,
 
-  //Optional onSuccess method which will confirm the query has successfully passed the cost limit check with a customizable message
+  // Optional onSuccess method which will confirm the query has successfully passed the cost limit check with a customizable 	  message
   onSuccess: cost => `Complete, query cost is ${cost}`,
 
-//Optional onError method to alert user that the query has been rejected with a customizable message
+// Optional onError method to alert user that the query has been rejected with a customizable message
   onError: (cost, costLim) => `Error: Cost is ${cost} but cost limit is set to ${costLim}`,
 
 };
 ```
 
-Create rule of Depth Complexity
+Set a limit for query depth by creating a object with the following properties.
 
 ```javascript
 const ruleDepth = {
 
-//All queries with this depth or above will be rejected and throw an error
+// All queries with a depth calculation above 'depthLimit' will be rejected and throw a GraphQLError before resolving.
   depthLimit: 100,
 
- //Optional onSuccess method which will confirm the query has successfully passed the cost limit check with a customizable message
+// Optional onSuccess method which will confirm the query has successfully passed the cost limit check with a customizable      message.
   onSuccess: depth => `Complete, query depth is ${depth}`,
 
-//Optional onError method to alert user that the query has been rejected with a customizable message
+// Optional onError method to alert user that the query has been rejected with a customizable GraphQLError
   onError: (depth, maximumDepth) => `Error: Current depth is ${depth} but max depth is 
-${maximumDepth}`,
+	   ${maximumDepth}`,
 
 };
 ```
@@ -56,14 +56,14 @@ ${maximumDepth}`,
 Depth is calculated by how nested the query is. For example the following queries are incrementally increasing:
 
 ```graphql
-//depth 1
+// ** depth = 1
 query{
   Author(id:1) {
     Name
   }
 }
 
-//depth 2
+// ** depth = 2
 query{
   Author(id:1) {
     Name
@@ -73,7 +73,7 @@ query{
   }
 }
 
-//depth 3
+// ** depth = 3
 query{
   Author(id:1) {
     Name
@@ -112,7 +112,7 @@ fragment books on Author{
 }
 ```
 
-Cyclical Queries can cause servers to crash by being nested to a large amount, and this is where setting a limit comes into play, by rejecting cyclical queries such as the following: 
+Cyclical Queries can cause servers to crash by being nested to a large amount, and this is where setting a depth limit becomes useful. A depth limit can reject cyclical queries such as the following: 
 
 ```graphql
 query{
@@ -155,9 +155,9 @@ query{
 
 This query would result in a cost of 5101, which can be broken down into the following steps:
 
-- The initial request is 1 because although we’re return the first 50 artists, there will only be one connection to the database 
-- For songs we will need to go connect once for each artist to get a list of their first 50 songs, so that will be 100
-- For the field songs inside genre, you will need to make one connection for the 5000 songs, so that will be 5000
+- The initial request is 1 because although we’re return the first 100 artists, there will only be one connection to the database. 
+- For songs we will need to connect once for each artist to get a list of their first 50 songs, so that will be 100 connections.
+- For the 'songs' field inside genre, you will need to make one connection for the 5000 songs, so that will be 5000
 
 Total Cost is 5101
 
