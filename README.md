@@ -1,6 +1,6 @@
-# Pro-graphQL
+# SmartGraphQL
 
-## GraphQL Query & Depth Complexity Analysis
+## GraphQL Query Cost & Depth Complexity Analysis
 
 The Pro-GraphQL library enables users to limit the depth and complexity of queries to their GraphQL server, preventing resource exhaustion.
 
@@ -11,7 +11,7 @@ Compatible with Express and Apollo-Server validation rules.
 Install this package via npm 
 
 ```
-npm install -s pro-graphql 
+npm install -s smartgraphql 
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ Set a limit for Cost Complexity by creating a object with the following properti
 ```javascript
 const ruleCost = {
 
-  // All queries with this cost or above will be rejected and throw an error
+  // All queries with a cost above this limit will be rejected and throw an error
   costLimit: 500,
 
   // Optional onSuccess method which will confirm the query has successfully passed the cost limit check with a customizable 	  message
@@ -38,7 +38,7 @@ Set a limit for query depth by creating a object with the following properties.
 ```javascript
 const ruleDepth = {
 
-// All queries with a depth calculation above 'depthLimit' will be rejected and throw a GraphQLError before resolving.
+// All queries with a depth above 'depthLimit' will be rejected and throw a GraphQLError before resolving.
   depthLimit: 100,
 
 // Optional onSuccess method which will confirm the query has successfully passed the cost limit check with a customizable      message.
