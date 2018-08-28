@@ -82,7 +82,7 @@ Depth is calculated by how nested the query is for example the following queries
 ```
 Inline Fragments and Fragments will not cause the query to increase for example in both the following case the query depth will remain 1: 
 
-```javascript
+```graphql
 //Inline Fragment
 {
   Author(id:1) {
@@ -110,7 +110,7 @@ fragment books on Author{
 
 Cyclical Queries can cause servers to crash by being nested to a large amount, and this is where setting a limit comes into play, by rejecting cyclical queries such as the following: 
 
-```javascript
+```graphql
 {
   Artists{
     Name
@@ -132,7 +132,7 @@ Cyclical Queries can cause servers to crash by being nested to a large amount, a
 
 Cost is calculated based on the number of times a resolve function makes a connection to the database. For example:
 
-```javascript
+```graphql
 query{
   artists(first: 100){
     name
