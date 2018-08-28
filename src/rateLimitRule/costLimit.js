@@ -31,12 +31,13 @@ class CostLimitComplexity {
 
   constructor(context: ValidationContext, config: costComplexityOptions) {
     this.context = context;
-    this.argsArray = [];
-    this.cost = 0;
     this.config = config;
+    this.cost = 0;
 
+    this.argsArray = [];
     this.fragmentsList = {};
-    this.validateQueryOnFragment = true;
+
+    this.validateOnFragment = true;
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -50,7 +51,6 @@ class CostLimitComplexity {
   }
 
   onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
-    // this.calculateCost(operationNode);
     this.calculateCostVersion1(operationNode);
   }
 
@@ -68,7 +68,7 @@ class CostLimitComplexity {
   }
 
   onFragmentDefinitionLeave() {
-    if (this.validateQueryOnFragment) this.validateQuery();
+    if (this.validateOnFragment) this.validateQuery();
   }
 
   calculateCostVersion1(node, localArgs = [], currentCost = 1) {
@@ -92,7 +92,7 @@ class CostLimitComplexity {
         this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
       });
     } else if (node.kind === 'FragmentSpread')
-      this.fragments[node.name.value] = { currentCost, localArgs };
+      this.fragmentsList[node.name.value] = { currentCost, localArgs };
   }
 
   getArguments(node) {
@@ -182,7 +182,7 @@ class CostLimitComplexity {
             this.cost
           }, max complexity score is currently set to ${costLimit}.`,
         );
-    } else if (onSuccess) onSuccess(cost);
+    } else if (onSuccess) console.log(onSuccess(this.cost));
   }
 }
 

@@ -12,12 +12,13 @@ var CostLimitComplexity = function () {
     _classCallCheck(this, CostLimitComplexity);
 
     this.context = context;
-    this.argsArray = [];
-    this.cost = 0;
     this.config = config;
+    this.cost = 0;
 
+    this.argsArray = [];
     this.fragmentsList = {};
-    this.validateQueryOnFragment = true;
+
+    this.validateOnFragment = true;
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -33,7 +34,6 @@ var CostLimitComplexity = function () {
   _createClass(CostLimitComplexity, [{
     key: 'onOperationDefinitionEnter',
     value: function onOperationDefinitionEnter(operationNode) {
-      // this.calculateCost(operationNode);
       this.calculateCostVersion1(operationNode);
     }
   }, {
@@ -57,7 +57,7 @@ var CostLimitComplexity = function () {
   }, {
     key: 'onFragmentDefinitionLeave',
     value: function onFragmentDefinitionLeave() {
-      if (this.validateQueryOnFragment) this.validateQuery();
+      if (this.validateOnFragment) this.validateQuery();
     }
   }, {
     key: 'calculateCostVersion1',
@@ -87,7 +87,7 @@ var CostLimitComplexity = function () {
           console.log('costArray[index]  ', costArray[index]);
           _this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
         });
-      } else if (node.kind === 'FragmentSpread') this.fragments[node.name.value] = { currentCost: currentCost, localArgs: localArgs };
+      } else if (node.kind === 'FragmentSpread') this.fragmentsList[node.name.value] = { currentCost: currentCost, localArgs: localArgs };
     }
   }, {
     key: 'getArguments',
@@ -178,7 +178,7 @@ var CostLimitComplexity = function () {
       if (costLimit < this.cost) {
         this.validateQueryOnFragment = false;
         if (onError) throw new GraphQLError(onError(this.cost, costLimit));else throw new GraphQLError('The complexity score of current query is ' + this.cost + ', max complexity score is currently set to ' + costLimit + '.');
-      } else if (onSuccess) onSuccess(cost);
+      } else if (onSuccess) console.log(onSuccess(this.cost));
     }
   }]);
 

@@ -1,7 +1,6 @@
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const mongoose = require('mongoose');
-const { GraphQLError } = require('graphql');
 
 const app = express();
 const schema = require('./schema/schema.js');
@@ -15,22 +14,22 @@ mongoose.connection.once('open', () => {
 
 const ruleCost = {
   costLimit: 10000,
-  onSuccess: cost => (`Complete, query cost is ${cost}`),
-  onError: (cost, costLimit) => (`Error: Cost is ${cost} but cost limit is ${costLimit}`),
+  onSuccess: cost => `Complete, query cost is ${cost}`,
+  onError: (cost, costLim) => `Error: Cost is ${cost} but cost limit is set to ${costLim}`,
 };
 const ruleDepth = {
   depthLimit: 100,
-  onSuccess: depth => (`Complete, query depth is ${depth}`),
-  onError: (depth, maximumDepth) => (`Error: Current depth is ${depth} but max depth is ${maximumDepth}`),
+  onSuccess: depth => `Complete, query depth is ${depth}`,
+  onError: (depth, maximumDepth) => `Error: Current depth is ${depth} but max depth is ${maximumDepth}`,
 };
-app.use('/graphql', graphqlHTTP((req, res, gqlParams) => ({
-  schema,
-  graphiql: true,
-  validationRules: [
-    depthComplexity(ruleDepth),
-    costLimit(ruleCost),
-  ],
-})));
+app.use(
+  '/graphql',
+  graphqlHTTP(() => ({
+    schema,
+    graphiql: true,
+    validationRules: [depthComplexity(ruleDepth), costLimit(ruleCost)],
+  })),
+);
 
 app.listen(5000, () => {
   console.log('listening to 5000');
