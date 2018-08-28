@@ -29,30 +29,69 @@ describe('Query Complexity Analysis', () => {
     }).toThrowError(GraphQLError);
   });
 
-  test('should calculate cost of query without arguments', () => {
+  test('should calculate cost of a simple query without arguments', () => {
     const ruleCost = {
       costLimit: 10,
     };
     const ast = parse(`
       query {
         item {
-          scalar
+          scalar {
+            name
+          }
         }
       }
     `);
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const complexity = new CostLimitComplexity(context, ruleCost);
-
     visit(ast, visitWithTypeInfo(typeInfo, complexity));
     expect(complexity.cost).toBe(1);
   });
 
-  test('should calculate cost of query if arguments are provided', () => {
+  test('should calculate cost of a complex query without arguments', () => {
+    const ast = parse(`
+    query {
+      viewer {
+        login
+        repositories {
+          edges {
+            node {
+              id
+    
+              issues {
+                edges {
+                  node {
+                    id
+    
+                    labels {
+                      edges {
+                        node {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    `);
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const complexity = new CostLimitComplexity(context, { costLimit: 69 });
+    visit(ast, visitWithTypeInfo(typeInfo, complexity));
+    expect(complexity.cost).toBe(1);
+  });
+
+  test('should calculate cost of a simple query if arguments are provided', () => {
     const ast = parse(`
       query {
-        item(count:5) {
-          variableScalar (count:5) {
+        item(first:5) {
+          variableScalar (last:5) {
            item 
           }
         }
@@ -65,74 +104,48 @@ describe('Query Complexity Analysis', () => {
     expect(complexity.cost).toBe(6);
   });
 
-  test('should calculate cost of query without arguments', () => {
+  
+
+  test('should calculate cost of a complex query if arguments are provided', () => {
     const ast = parse(`
-      query {
-        artists {
-          name {
-            songs {
-              name
-            }
-            albums {
-              songs {
-                yearscalar
+    query {
+      viewer {
+        login
+        repositories(first: 100) {
+          edges {
+            node {
+              id
+    
+              issues(first: 50) {
+                edges {
+                  node {
+                    id
+    
+                    labels(first: 60) {
+                      edges {
+                        node {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         }
       }
+    }
     `);
 
     const context = new ValidationContext(schema, ast, typeInfo);
-    const complexity = new CostLimitComplexity(context, { costLimit: 69 });
+    const complexity = new CostLimitComplexity(context, { costLimit: 5101 });
     visit(ast, visitWithTypeInfo(typeInfo, complexity));
-    expect(complexity.cost).toBe(5);
-    console.log(complexity.config.costLimit, 'COST');
+    expect(complexity.cost).toBe(5101);
   });
 
-  test('should calculate cost of query if arguments are provided', () => {
-    const ast = parse(`
-      query {
-        name(first: 5) {
-          address {
-            street(first:5) {
-              building {
-                apt
-              }
-            }
-          }
-        }
-      }
-    `);
-
-    const context = new ValidationContext(schema, ast, typeInfo);
-    const complexity = new CostLimitComplexity(context, { costLimit: 36 });
-    visit(ast, visitWithTypeInfo(typeInfo, complexity));
-    expect(complexity.cost).toBe(36);
-  });
-
-  test('should properly calculate cost on queries containing interfaces', () => {
-    const ast = parse(`
-      query {
-        interface {
-         name
-         ... on NameInterface {
-           name
-         }
-         item {
-           scalar
-         }
-        }
-      }
-    `);
-
-    const context = new ValidationContext(schema, ast, typeInfo);
-    const complexity = new CostLimitComplexity(context, { costLimit: 36 });
-    visit(ast, visitWithTypeInfo(typeInfo, complexity));
-    expect(complexity.cost).toBe(2);
-  });
-
-  test('should throw an error if actual query cost is greater than cost limit', () => {
+   test('should throw an error if actual query cost is greater than cost limit', () => {
     const ast = parse(`
       query{
         item {
@@ -142,10 +155,8 @@ describe('Query Complexity Analysis', () => {
         }
       }
     `);
-
     const context = new ValidationContext(schema, ast, typeInfo);
-    const complexity2 = new CostLimitComplexity(context, { costLimit: 0, onError: 'asd' });
-
+    const complexity2 = new CostLimitComplexity(context, { costLimit: 1 });
     expect(() => {
       visit(ast, visitWithTypeInfo(typeInfo, complexity2));
     }).toThrowError(GraphQLError);
@@ -165,10 +176,30 @@ describe('Query Complexity Analysis', () => {
         scalar
       }
     `);
-
     const context = new ValidationContext(schema, ast, typeInfo);
     const complexity = new CostLimitComplexity(context, { costLimit: 36 });
     visit(ast, visitWithTypeInfo(typeInfo, complexity));
     expect(complexity.cost).toBe(1);
   });
+
+   test('should properly calculate cost on queries containing interfaces', () => {
+    const ast = parse(`
+      query {
+        interface {
+         name
+         ... on NameInterface {
+           name
+         }
+         item {
+           scalar
+         }
+        }
+      }
+    `);
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const complexity = new CostLimitComplexity(context, { costLimit: 36 });
+    visit(ast, visitWithTypeInfo(typeInfo, complexity));
+    expect(complexity.cost).toBe(1);
+  });
+
 });

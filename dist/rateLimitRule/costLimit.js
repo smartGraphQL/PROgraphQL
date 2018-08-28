@@ -67,11 +67,13 @@ var CostLimitComplexity = function () {
       var localArgs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
       var currentCost = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 
-      console.log('LOCAL ARGS ', localArgs);
-      console.log('CURRENT COSTTT ', currentCost);
+      // console.log('CALCULATING COST WITH CURRENT COST OF' , currentCost)
+      // console.log('!!! CURRENT   NODE  ', node);
       // if(node.kind === 'Field') console.log('field Name ', node.name.value);
       this.cost = Math.max(this.cost, currentCost);
-
+      // if(node.loc.startToken.prev.prev !== null && node.loc.startToken.prev.prev.value === 'query') {
+      //   currentCost += 1;
+      // }
       if (node.selectionSet) {
         var selections = node.selectionSet.selections;
 
@@ -84,7 +86,7 @@ var CostLimitComplexity = function () {
             costArray[index] = _this.updateCost(currentCost, modifiedLocalArgs);
             _this.updateLocalArgsArr(modifiedLocalArgs, args['first'] || args['last']);
           }
-          console.log('costArray[index]  ', costArray[index]);
+          // console.log('costArray[index]  ', costArray[index]);
           _this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
         });
       } else if (node.kind === 'FragmentSpread') this.fragmentsList[node.name.value] = { currentCost: currentCost, localArgs: localArgs };
@@ -104,10 +106,11 @@ var CostLimitComplexity = function () {
   }, {
     key: 'updateCost',
     value: function updateCost(currentCost, array) {
-      return currentCost += array.reduce(function (product, num) {
-        return product * num;
-      }, 1);
-      // return currentCost + product;
+      if (array.length > 0) {
+        return currentCost += array.reduce(function (product, num) {
+          return product * num;
+        }, 1);
+      }
     }
   }, {
     key: 'updateLocalArgsArr',
@@ -174,7 +177,7 @@ var CostLimitComplexity = function () {
           onError = _config.onError;
 
 
-      console.log('COSTT', this.cost);
+      console.log('FINAL COSTT', this.cost);
       if (costLimit < this.cost) {
         this.validateQueryOnFragment = false;
         if (onError) throw new GraphQLError(onError(this.cost, costLimit));else throw new GraphQLError('The complexity score of current query is ' + this.cost + ', max complexity score is currently set to ' + costLimit + '.');

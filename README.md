@@ -1,2 +1,2 @@
 # PROgraphQL
-Depth/Cost Complexity is up and running. 
+GraphQL Server resource management library for validating depth and complexity of queries.

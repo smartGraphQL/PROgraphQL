@@ -72,11 +72,13 @@ class CostLimitComplexity {
   }
 
   calculateCostVersion1(node, localArgs = [], currentCost = 1) {
-    console.log('LOCAL ARGS ', localArgs);
-    console.log('CURRENT COSTTT ', currentCost);
+    // console.log('CALCULATING COST WITH CURRENT COST OF' , currentCost)
+    // console.log('!!! CURRENT   NODE  ', node);
     // if(node.kind === 'Field') console.log('field Name ', node.name.value);
     this.cost = Math.max(this.cost, currentCost);
-
+    // if(node.loc.startToken.prev.prev !== null && node.loc.startToken.prev.prev.value === 'query') {
+    //   currentCost += 1;
+    // }
     if (node.selectionSet) {
       const { selections } = node.selectionSet;
       const costArray = new Array(selections.length);
@@ -88,7 +90,7 @@ class CostLimitComplexity {
           costArray[index] = this.updateCost(currentCost, modifiedLocalArgs);
           this.updateLocalArgsArr(modifiedLocalArgs, args['first'] || args['last']);
         }
-        console.log('costArray[index]  ', costArray[index]);
+        // console.log('costArray[index]  ', costArray[index]);
         this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
       });
     } else if (node.kind === 'FragmentSpread')
@@ -105,8 +107,9 @@ class CostLimitComplexity {
   }
 
   updateCost(currentCost, array) {
-    return (currentCost += array.reduce((product, num) => product * num, 1));
-    // return currentCost + product;
+    if(array.length > 0) {
+      return (currentCost += array.reduce((product, num) => product * num, 1));
+    }
   }
 
   updateLocalArgsArr(arr, argumentValue) {
@@ -172,7 +175,7 @@ class CostLimitComplexity {
   validateQuery(): void | GraphQLError {
     const { costLimit, onSuccess, onError } = this.config;
 
-    console.log('COSTT', this.cost);
+    // console.log('FINAL COSTT', this.cost);
     if (costLimit < this.cost) {
       this.validateQueryOnFragment = false;
       if (onError) throw new GraphQLError(onError(this.cost, costLimit));
