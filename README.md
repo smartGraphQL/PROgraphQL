@@ -2,7 +2,7 @@
 
 ## GraphQL Query Cost & Depth Complexity Analysis
 
-The Pro-GraphQL library enables users to limit the depth and complexity of queries to their GraphQL server, preventing resource exhaustion.
+The SmartGraphQL library enables users to limit the depth and complexity of queries to their GraphQL server, preventing resource exhaustion.
 
 Compatible with Express and Apollo-Server validation rules.
 
