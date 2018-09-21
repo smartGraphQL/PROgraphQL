@@ -7,10 +7,10 @@ const {
   GraphQLError,
 } = require('graphql');
 
-const CostLimitComplexity = require('../src/rateLimitRule/costLimit');
+const CostLimitComplexity = require('../src/costRule/costLimit');
 const DepthLimitComplexity = require('../src/depthRule/depthComplexity');
 const schema = require('./mock_schema/schema');
-const costLimit = require('../src/rateLimitRule/indexCost');
+const costLimit = require('../src/costRule/indexCost');
 const depthLimit = require('../src/depthRule/indexDepth'); 
 
 describe('Query Cost Analysis', () => {
@@ -381,5 +381,4 @@ describe('Query Depth Analysis', () => {
   visit(ast, visitWithTypeInfo(typeInfo, complexity));
   expect(complexity.actualDepth).toBe(3);
 });
-
 });

@@ -192,5 +192,3 @@ app.use(
 ## Credits
 
 Developed by Julia, Manjeet, Mark & Seth
-
-
