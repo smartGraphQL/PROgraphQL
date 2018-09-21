@@ -21,7 +21,7 @@ export type costComplexityOptions = {
   onError?: (actual: number, maxDepth: number) => string,
 };
 
-class CostLimitComplexity {
+class CostComplexity {
   context: ValidationContext;
   rateLimit: number;
   OperationDefinition: Object;
@@ -100,7 +100,7 @@ class CostLimitComplexity {
   }
 
   updateCost(currentCost, array) {
-    if(array.length > 0) {
+    if (array.length > 0) {
       return (currentCost += array.reduce((product, num) => product * num, 1));
     }
   }
@@ -117,12 +117,11 @@ class CostLimitComplexity {
       if (onError) throw new GraphQLError(onError(this.cost, costLimit));
       else
         throw new GraphQLError(
-          `The complexity score of current query is ${
-            this.cost
-          }, max complexity score is currently set to ${costLimit}.`,
+          `The complexity score of current query is ${this.cost}, 
+          max complexity score is currently set to ${costLimit}.`,
         );
     } else if (onSuccess) console.log(onSuccess(this.cost));
   }
 }
 
-module.exports = CostLimitComplexity;
+module.exports = CostComplexity;

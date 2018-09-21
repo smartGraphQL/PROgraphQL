@@ -7,7 +7,7 @@ const schema = require('./schema/schema.js');
 const depthComplexity = require('../dist/depthRule/indexDepth.js');
 const costLimit = require('../dist/rateLimitRule/indexCost.js');
 
-mongoose.connect('mongodb://satyam:n5u6n8s9@ds017165.mlab.com:17165/testdb1');
+mongoose.connect();
 mongoose.connection.once('open', () => {
   console.log('connected with database');
 });
