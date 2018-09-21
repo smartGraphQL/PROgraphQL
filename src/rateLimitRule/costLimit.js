@@ -73,9 +73,6 @@ class CostLimitComplexity {
 
   calculateCostVersion1(node, localArgs = [], currentCost = 1) {
     this.cost = Math.max(this.cost, currentCost);
-    // if(node.loc.startToken.prev.prev !== null && node.loc.startToken.prev.prev.value === 'query') {
-    //   currentCost += 1;
-    // }
     if (node.selectionSet) {
       const { selections } = node.selectionSet;
       const costArray = new Array(selections.length);
