@@ -1,3 +1,4 @@
+
 # SmartGraphQL
 
 ## GraphQL Query Cost & Depth Complexity Analysis
@@ -191,4 +192,5 @@ app.use(
 ## Credits
 
 Developed by Julia, Manjeet, Mark & Seth
+
 
