@@ -47,7 +47,7 @@ const ruleDepth = {
 
 // Optional onError method to alert user that the query has been rejected with a customizable GraphQLError
   onError: (depth, maximumDepth) => `Error: Current depth is ${depth} but max depth is 
-	   ${maximumDepth}`,
+	   ${maximumDepth}`
 
 };
 ```
