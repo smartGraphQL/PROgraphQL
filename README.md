@@ -54,7 +54,7 @@ const ruleDepth = {
 
 ## Depth Calculation
 
-Depth is calculated by how nested the query is. For example the following queries are incrementally increasing:
+Depth is calculated by how nested the query is. For example, the following queries are incrementally increasing:
 
 ```graphql
 // ** depth = 1
