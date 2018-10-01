@@ -156,7 +156,7 @@ query{
 
 This query would result in a cost of 5101, which can be broken down into the following steps:
 
-- The initial request is 1 because although we’re return the first 100 artists, there will only be one connection to the database. 
+- The initial request cost is 1 because although we’re return the first 100 artists, there will only be one connection to the database. 
 - For songs we will need to connect once for each artist to get a list of their first 50 songs, so that will be 100 connections.
 - For the 'songs' field inside genre, you will need to make one connection for the 5000 songs, so that will be 5000
 
