@@ -9,7 +9,7 @@ Compatible with Express and Apollo-Server validation rules.
 
 ## Installation
 
-Install this package via npm 
+Install this package via npm:
 
 ```
 npm install -s smartgraphql 
