@@ -164,7 +164,7 @@ Total Cost is 5101
 
 ## Usage with express-graphql
 
-Integrating the rules inside the validation rules will look like this, the limit will be manadatory, but the onSuccess and onError function are optional 
+Integrating the rules inside the validation rules will look like this, the limit will be manadatory, but the onSuccess and onError function are optional: 
 
 ```javascript
 const ruleCost = {
