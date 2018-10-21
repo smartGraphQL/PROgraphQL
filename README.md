@@ -19,7 +19,7 @@ npm install -s smartgraphql
 
 ## Usage
 
-Set a limit for Cost Complexity by creating a object with the following properties. 
+Set a limit for Cost Complexity by creating a object with the following properties:
 
 ```javascript
 const ruleCost = {
