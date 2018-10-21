@@ -17,7 +17,8 @@
     "security",
     "graphql",
     "server",
-    "resources"
+    "resources",
+    "complexity"
   ],
   "author": "Seth, Mark, Julia, Manjeet",
   "license": "ISC",
