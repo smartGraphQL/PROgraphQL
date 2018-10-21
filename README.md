@@ -1,6 +1,8 @@
 
 # SmartGraphQL
 
+https://travis-ci.com/smartGraphQL/PROgraphQL.svg?branch=Distribution-Ready
+
 ## GraphQL Query Cost & Depth Complexity Analysis
 
 The SmartGraphQL library enables users to limit the depth and complexity of queries to their GraphQL server, preventing resource exhaustion.
