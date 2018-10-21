@@ -1,10 +1,8 @@
 {
   "name": "prographql",
   "version": "1.0.0",
-  "description": "Depth/Cost Complexity is up and running.",
-  "main": "./graphqlTestServer/app.js",
+  "description": "GraphQL Query Cost & Depth Complexity Analysis",
   "scripts": {
-    "server": "nodemon ./graphqlTestServer/app.js",
     "flow": "flow",
     "build": "babel src/ --out-dir dist/  ",
     "test": "jest"
