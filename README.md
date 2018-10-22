@@ -1,6 +1,9 @@
 
 # SmartGraphQL
 
+![Travis (.org) branch](https://travis-ci.com/smartGraphQL/PROgraphQL.svg?branch=Distribution-Ready)
+
+
 ## GraphQL Query Cost & Depth Complexity Analysis
 
 The SmartGraphQL library enables users to limit the depth and complexity of queries to their GraphQL server, preventing resource exhaustion.
@@ -17,7 +20,9 @@ npm install -s smartgraphql
 
 ## Usage
 
-Set a limit for Cost Complexity by creating a object with the following properties.
+
+Set a limit for Cost Complexity by creating a object with the following properties:
+
 
 ```javascript
 const ruleCost = {

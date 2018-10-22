@@ -1,10 +1,8 @@
 {
   "name": "prographql",
   "version": "1.0.0",
-  "description": "Depth/Cost Complexity is up and running.",
-  "main": "./graphqlTestServer/app.js",
+  "description": "GraphQL Query Cost & Depth Complexity Analysis",
   "scripts": {
-    "server": "nodemon ./graphqlTestServer/app.js",
     "flow": "flow",
     "build": "babel src/ --out-dir dist/  ",
     "test": "jest"
@@ -19,7 +17,8 @@
     "security",
     "graphql",
     "server",
-    "resources"
+    "resources",
+    "complexity"
   ],
   "author": "Seth, Mark, Julia, Manjeet",
   "license": "ISC",
@@ -32,13 +31,11 @@
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
     "graphql": "^0.13.2",
-    "mongoose": "^5.2.7",
     "nodemon": "^1.18.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-flow": "^6.23.0",
-    "chai": "^4.1.2",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
@@ -46,7 +43,6 @@
     "eslint-plugin-react": "^7.11.1",
     "flow-bin": "^0.79.1",
     "flow-remove-types": "^1.2.3",
-    "jest": "^23.5.0",
-    "mocha": "^5.2.0"
+    "jest": "^23.5.0"
   }
 }

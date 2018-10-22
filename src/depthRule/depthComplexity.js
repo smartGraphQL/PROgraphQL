@@ -57,29 +57,6 @@ class DepthComplexity {
     this.calculateDepth(operationNode, 0, false);
   }
 
-  calculateDepth(
-    node: FieldNode | OperationDefinitionNode,
-    depth: number = 0,
-    isFragment: boolean,
-    nodeArray: Array<
-      | FragmentDefinitionNode
-      | OperationDefinitionNode
-      | FieldNode
-      | FragmentSpreadNode
-      | InlineFragmentNode,
-    > = [],
-  ) {
-    if (!node.selectionSet) return;
-    else {
-      nodeArray = nodeArray.concat(node.selectionSet.selections);
-      depth += 1;
-      nodeArray.forEach(childNode => {
-        if (isFragment) this.calculateDepth(childNode, depth, isFragment);
-        else this.calculateDepth(childNode, depth, false);
-      });
-    }
-  }
-
   onOperationDefinitionLeave(): GraphQLError | void {
     this.validateQuery();
   }
@@ -106,7 +83,7 @@ class DepthComplexity {
       depth += 1;
       nodeArray.forEach(childNode => {
         if (isFragment) this.calculateDepth(childNode, depth, isFragment);
-        else this.calculateDepth(childNode, depth);
+        else this.calculateDepth(childNode, depth, false);
       });
     }
 
