@@ -12,7 +12,7 @@ Compatible with Express and Apollo-Server validation rules.
 
 ## Installation
 
-Install this package via npm 
+Install this package via npm:
 
 ```
 npm install -s smartgraphql 
@@ -20,7 +20,9 @@ npm install -s smartgraphql
 
 ## Usage
 
+
 Set a limit for Cost Complexity by creating a object with the following properties:
+
 
 ```javascript
 const ruleCost = {
@@ -50,14 +52,14 @@ const ruleDepth = {
 
 // Optional onError method to alert user that the query has been rejected with a customizable GraphQLError
   onError: (depth, maximumDepth) => `Error: Current depth is ${depth} but max depth is 
-	   ${maximumDepth}`,
+	   ${maximumDepth}`
 
 };
 ```
 
 ## Depth Calculation
 
-Depth is calculated by how nested the query is. For example the following queries are incrementally increasing:
+Depth is calculated by how nested the query is. For example, the following queries are incrementally increasing:
 
 ```graphql
 // ** depth = 1
@@ -159,7 +161,7 @@ query{
 
 This query would result in a cost of 5101, which can be broken down into the following steps:
 
-- The initial request is 1 because although we’re return the first 100 artists, there will only be one connection to the database. 
+- The initial request cost is 1 because although we’re return the first 100 artists, there will only be one connection to the database. 
 - For songs we will need to connect once for each artist to get a list of their first 50 songs, so that will be 100 connections.
 - For the 'songs' field inside genre, you will need to make one connection for the 5000 songs, so that will be 5000
 
@@ -167,7 +169,7 @@ Total Cost is 5101
 
 ## Usage with express-graphql
 
-Integrating the rules inside the validation rules will look like this, the limit will be manadatory, but the onSuccess and onError function are optional 
+Integrating the rules inside the validation rules will look like this, the limit will be manadatory, but the onSuccess and onError function are optional: 
 
 ```javascript
 const ruleCost = {
