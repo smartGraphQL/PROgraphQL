@@ -1,7 +1,7 @@
 
 # SmartGraphQL
 
-![Travis (.org) branch](https://travis-ci.com/smartGraphQL/PROgraphQL.svg?branch=Distribution-Ready)
+![Travis (.org) branch](https://travis-ci.com/smartGraphQL/PROgraphQL.svg?branch=master)
 
 
 ## GraphQL Query Cost & Depth Complexity Analysis
