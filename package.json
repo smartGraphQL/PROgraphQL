@@ -1,6 +1,6 @@
 {
-  "name": "prographql",
-  "version": "1.0.0",
+  "name": "smartgraphql",
+  "version": "1.0.4",
   "description": "GraphQL Query Cost & Depth Complexity Analysis",
   "scripts": {
     "flow": "flow",
@@ -17,7 +17,8 @@
     "security",
     "graphql",
     "server",
-    "resources"
+    "resources",
+    "complexity"
   ],
   "author": "Seth, Mark, Julia, Manjeet",
   "license": "ISC",
