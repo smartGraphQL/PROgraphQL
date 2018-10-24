@@ -6,3 +6,4 @@ node_js:
 - '10'
 script:
 - npm test
+- echo $TRAVIS_TEST_RESULT
