@@ -11,7 +11,7 @@ const CostLimitComplexity = require('../src/costRule/costLimit');
 const DepthLimitComplexity = require('../src/depthRule/depthComplexity');
 const schema = require('./mock_schema/schema');
 const costLimit = require('../src/costRule/indexCost');
-const depthLimit = require('../src/depthRule/indexDepth'); 
+const depthLimit = require('../src/depthRule/indexDepth');
 
 describe('Query Cost Analysis', () => {
   const typeInfo = new TypeInfo(schema);
@@ -139,7 +139,7 @@ describe('Query Cost Analysis', () => {
     expect(complexity.cost).toBe(5101);
   });
 
-   test('should throw an error if actual query cost is greater than cost limit', () => {
+  test('should throw an error if actual query cost is greater than cost limit', () => {
     const ast = parse(`
       query{
         item {
@@ -176,7 +176,7 @@ describe('Query Cost Analysis', () => {
     expect(complexity.cost).toBe(1);
   });
 
-   test('should properly calculate cost on queries containing interfaces', () => {
+  test('should properly calculate cost on queries containing interfaces', () => {
     const ast = parse(`
       query {
         interface {
@@ -195,9 +195,7 @@ describe('Query Cost Analysis', () => {
     visit(ast, visitWithTypeInfo(typeInfo, complexity));
     expect(complexity.cost).toBe(1);
   });
-
 });
-
 
 describe('Query Depth Analysis', () => {
   const typeInfo = new TypeInfo(schema);
@@ -320,7 +318,7 @@ describe('Query Depth Analysis', () => {
     expect(complexity.actualDepth).toBe(11);
   });
 
-   test('should throw an error if actual query depth is greater than depth limit set by user', () => {
+  test('should throw an error if actual query depth is greater than depth limit set by user', () => {
     const ast = parse(`
       query{
         item {
@@ -363,7 +361,7 @@ describe('Query Depth Analysis', () => {
   });
 
   test('should properly calculate depth on queries containing interfaces', () => {
-   const ast = parse(`
+    const ast = parse(`
      query {
        interface {
         name
@@ -376,9 +374,9 @@ describe('Query Depth Analysis', () => {
       }
     }
   `);
-  const context = new ValidationContext(schema, ast, typeInfo);
-  const complexity = new DepthLimitComplexity(context, { depthLimit: 5 });
-  visit(ast, visitWithTypeInfo(typeInfo, complexity));
-  expect(complexity.actualDepth).toBe(3);
-});
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const complexity = new DepthLimitComplexity(context, { depthLimit: 5 });
+    visit(ast, visitWithTypeInfo(typeInfo, complexity));
+    expect(complexity.actualDepth).toBe(3);
+  });
 });

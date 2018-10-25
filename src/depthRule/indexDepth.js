@@ -1,6 +1,9 @@
-const DepthComplexity = require('./depthComplexity');
-const { ValidationContext, GraphQLError } = require('graphql');
+//@flow
 
+const DepthComplexity = require('./depthComplexity');
+const { GraphQLError } = require('graphql');
+
+import type { ValidationContext } from 'graphql';
 import type { DepthComplexityOptions } from './depthComplexity';
 
 const depthComplexity = (rule: DepthComplexityOptions): Function => {
