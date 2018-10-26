@@ -51,7 +51,7 @@ class CostComplexity {
   }
 
   onOperationDefinitionEnter(operationNode: OperationDefinitionNode) {
-    this.calculateCostVersion1(operationNode);
+    this.calculateCost(operationNode);
   }
 
   onOperationDefinitionLeave() {
@@ -63,7 +63,7 @@ class CostComplexity {
 
     if (this.fragmentsList[fragName]) {
       const { currentCost, localArgs } = this.fragmentsList[fragName];
-      this.calculateCostVersion1(fragment, localArgs, currentCost);
+      this.calculateCost(fragment, localArgs, currentCost);
     }
   }
 
@@ -71,8 +71,9 @@ class CostComplexity {
     if (this.validateOnFragment) this.validateQuery();
   }
 
-  calculateCostVersion1(node, localArgs = [], currentCost = 1) {
+  calculateCost(node, localArgs = [], currentCost = 1) {
     this.cost = Math.max(this.cost, currentCost);
+
     if (node.selectionSet) {
       const { selections } = node.selectionSet;
       const costArray = new Array(selections.length);
@@ -84,7 +85,7 @@ class CostComplexity {
           costArray[index] = this.updateCost(currentCost, modifiedLocalArgs);
           this.updateLocalArgsArr(modifiedLocalArgs, args['first'] || args['last']);
         }
-        this.calculateCostVersion1(childNode, modifiedLocalArgs, costArray[index] || currentCost);
+        this.calculateCost(childNode, modifiedLocalArgs, costArray[index] || currentCost);
       });
     } else if (node.kind === 'FragmentSpread')
       this.fragmentsList[node.name.value] = { currentCost, localArgs };
