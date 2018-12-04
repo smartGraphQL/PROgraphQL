@@ -1,7 +1,7 @@
 //@flow
+const { GraphQLError } = require('graphql');
 
 const CostComplexityOptions = require('./costLimit');
-const { GraphQLError } = require('graphql');
 
 import type { ValidationContext } from 'graphql';
 import type { costComplexityOptions } from './costLimit';
