@@ -26,12 +26,12 @@
     "url": "https://github.com/smartGraphQL/PROgraphQL/issues"
   },
   "homepage": "https://github.com/smartGraphQL/PROgraphQL#readme",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "babel-preset-env": "^1.7.0",
-    "express": "^4.16.3",
-    "express-graphql": "^0.6.12",
-    "graphql": "^0.13.2",
-    "nodemon": "^1.18.3"
+    "graphql": "^0.13.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
