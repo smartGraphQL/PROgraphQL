@@ -1,4 +1,6 @@
 /test
+/src
 .babelrc
 .travis.yml
-/src
+.flowconfig
+
