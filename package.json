@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "GraphQL Query Cost & Depth Complexity Analysis",
   "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "flow": "flow",
     "build": "babel src/ --out-dir dist/  ",
