@@ -1,7 +1,7 @@
 //@flow
+const { GraphQLError } = require('graphql');
 
 const DepthComplexity = require('./depthComplexity');
-const { GraphQLError } = require('graphql');
 
 import type { ValidationContext } from 'graphql';
 import type { DepthComplexityOptions } from './depthComplexity';

@@ -2,10 +2,15 @@
   "name": "smartgraphql",
   "version": "1.0.4",
   "description": "GraphQL Query Cost & Depth Complexity Analysis",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "flow": "flow",
     "build": "babel src/ --out-dir dist/  ",
-    "test": "jest"
+    "test": "jest",
+    "remove-flow": "flow-remove-types --pretty --out-dir lib/ src/ && flow-copy-source src lib"
   },
   "repository": {
     "type": "git",
@@ -27,14 +32,11 @@
   },
   "homepage": "https://github.com/smartGraphQL/PROgraphQL#readme",
   "dependencies": {
-    "babel-preset-env": "^1.7.0",
-    "express": "^4.16.3",
-    "express-graphql": "^0.6.12",
-    "graphql": "^0.13.2",
-    "nodemon": "^1.18.3"
+    "graphql": "^0.13.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-flow": "^6.23.0",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
@@ -42,6 +44,7 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.1",
     "flow-bin": "^0.79.1",
+    "flow-copy-source": "^2.0.2",
     "flow-remove-types": "^1.2.3",
     "jest": "^23.5.0"
   }
