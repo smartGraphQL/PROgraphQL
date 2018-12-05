@@ -1,7 +1,8 @@
 
 # SmartGraphQL
 
-![Travis (.org) branch](https://travis-ci.com/smartGraphQL/PROgraphQL.svg?branch=Distribution-Ready)
+![Travis (.org) branch](https://travis-ci.com/smartGraphQL/PROgraphQL.svg?branch=master)
+[![npm version](https://badge.fury.io/js/smartgraphql.svg)](https://badge.fury.io/js/smartgraphql)
 
 
 ## GraphQL Query Cost & Depth Complexity Analysis
