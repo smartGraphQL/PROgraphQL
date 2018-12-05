@@ -71,7 +71,7 @@ class CostComplexity {
     if (this.validateOnFragment) this.validateQuery();
   }
 
-  calculateCost(node, localArgs = [], currentCost = 1) {
+  static calculateCost(node, localArgs = [], currentCost = 1) {
     this.cost = Math.max(this.cost, currentCost);
 
     if (node.selectionSet) {
@@ -91,7 +91,7 @@ class CostComplexity {
       this.fragmentsList[node.name.value] = { currentCost, localArgs };
   }
 
-  getArguments(node) {
+  static getArguments(node) {
     if (node.arguments) {
       const argObj = {};
       node.arguments.forEach(nodeArg => (argObj[nodeArg.name.value] = nodeArg.value.value));
@@ -100,17 +100,17 @@ class CostComplexity {
     return false;
   }
 
-  updateCost(currentCost, array) {
+  static updateCost(currentCost, array) {
     if (array.length > 0) {
       return (currentCost += array.reduce((product, num) => product * num, 1));
     }
   }
 
-  updateLocalArgsArr(arr, argumentValue) {
+  static updateLocalArgsArr(arr, argumentValue) {
     arr.push(argumentValue);
   }
 
-  validateQuery(): void | GraphQLError {
+  static validateQuery(): void | GraphQLError {
     const { costLimit, onSuccess, onError } = this.config;
 
     if (costLimit < this.cost) {

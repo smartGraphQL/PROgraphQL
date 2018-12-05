@@ -65,7 +65,7 @@ class DepthComplexity {
     this.validateQuery();
   }
 
-  calculateDepth(
+  static calculateDepth(
     node: FieldNode | OperationDefinitionNode,
     depth: number = 0,
     isFragment: boolean,
@@ -96,7 +96,7 @@ class DepthComplexity {
     }
   }
 
-  validateQuery(): void {
+  static validateQuery(): void {
     const { depthLimit, onSuccess, onError } = this.config;
 
     if (depthLimit < this.actualDepth) {
